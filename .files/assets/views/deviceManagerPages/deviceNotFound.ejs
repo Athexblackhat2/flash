@@ -1,0 +1,474 @@
+<div class="device-notfound">
+
+    <!-- Animated background orbs -->
+    <div class="nf-orb nf-orb-1"></div>
+    <div class="nf-orb nf-orb-2"></div>
+
+    <!-- Main content -->
+    <div class="nf-content">
+
+        <!-- Animated icon -->
+        <div class="nf-icon-wrap">
+            <div class="nf-icon-ring"></div>
+            <div class="nf-icon-ring nf-icon-ring-2"></div>
+            <div class="nf-icon">
+                <i class="icon mobile alternate"></i>
+                <i class="icon times nf-icon-cross"></i>
+            </div>
+        </div>
+
+        <!-- Text -->
+        <h1 class="nf-title">Device Not Found</h1>
+
+        <p class="nf-subtitle">
+            The device you're looking for is either
+            <span class="nf-highlight">offline</span>,
+            <span class="nf-highlight">removed</span>, or
+            <span class="nf-highlight">never connected</span>.
+        </p>
+
+        <!-- Action buttons -->
+        <div class="nf-actions">
+            <a href="/" class="nf-btn nf-btn-primary">
+                <i class="icon arrow left"></i>
+                <span>Back to Devices</span>
+            </a>
+            <button type="button" onclick="window.location.reload()" class="nf-btn nf-btn-secondary">
+                <i class="icon sync"></i>
+                <span>Retry</span>
+            </button>
+        </div>
+
+        <!-- Helpful hint -->
+        <div class="nf-hint">
+            <i class="icon info circle"></i>
+            <span>Tip: Check if the device is still connected to the internet</span>
+        </div>
+
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       DEVICE NOT FOUND — Animated Empty State
+       ============================================ */
+
+    .device-notfound {
+        position: relative;
+        min-height: 520px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: rgba(19, 26, 38, 0.55);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 56, 96, 0.15);
+        border-radius: 20px;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    /* ============================================
+       Background floating orbs
+       ============================================ */
+    .nf-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(70px);
+        opacity: 0.35;
+        pointer-events: none;
+        z-index: 0;
+        animation: orbFloat 12s ease-in-out infinite;
+    }
+
+    .nf-orb-1 {
+        width: 240px;
+        height: 240px;
+        background: #ff3860;
+        top: -60px;
+        left: -60px;
+        animation-delay: 0s;
+    }
+
+    .nf-orb-2 {
+        width: 200px;
+        height: 200px;
+        background: #7c3aed;
+        bottom: -50px;
+        right: -50px;
+        animation-delay: -6s;
+    }
+
+    @keyframes orbFloat {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33%      { transform: translate(20px, -30px) scale(1.1); }
+        66%      { transform: translate(-15px, 20px) scale(0.95); }
+    }
+
+    /* ============================================
+       Content wrapper
+       ============================================ */
+    .nf-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 480px;
+        width: 100%;
+    }
+
+    /* ============================================
+       Animated icon
+       ============================================ */
+    .nf-icon-wrap {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 32px;
+    }
+
+    /* Pulsing rings behind the icon */
+    .nf-icon-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 56, 96, 0.35);
+        animation: ringPulse 2.4s ease-out infinite;
+    }
+
+    .nf-icon-ring-2 {
+        animation-delay: 1.2s;
+    }
+
+    @keyframes ringPulse {
+        0% {
+            transform: scale(0.7);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1.4);
+            opacity: 0;
+        }
+    }
+
+    /* Center icon */
+    .nf-icon {
+        position: relative;
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 56, 96, 0.18),
+            rgba(124, 58, 237, 0.12)
+        );
+        border: 2px solid rgba(255, 56, 96, 0.35);
+        box-shadow:
+            0 0 30px rgba(255, 56, 96, 0.35),
+            inset 0 0 25px rgba(255, 56, 96, 0.12);
+        animation: iconFloat 3.5s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-6px); }
+    }
+
+    .nf-icon .icon.mobile.alternate {
+        font-size: 2.6rem !important;
+        color: #ff3860 !important;
+        margin: 0 !important;
+        filter: drop-shadow(0 0 12px rgba(255, 56, 96, 0.7));
+    }
+
+    /* Small cross badge */
+    .nf-icon-cross {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1a2332;
+        border: 2px solid rgba(255, 56, 96, 0.6);
+        border-radius: 50%;
+        font-size: 0.9rem !important;
+        color: #ff3860 !important;
+        margin: 0 !important;
+        box-shadow: 0 0 15px rgba(255, 56, 96, 0.5);
+        animation: crossPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes crossPulse {
+        0%, 100% { transform: scale(1); }
+        50%      { transform: scale(1.12); }
+    }
+
+    /* ============================================
+       Text
+       ============================================ */
+    .nf-title {
+        font-size: 1.4rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #e6edf3 !important;
+        margin: 0 0 14px 0 !important;
+        text-shadow: 0 0 20px rgba(255, 56, 96, 0.3);
+    }
+
+    .nf-subtitle {
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: #8b98a8;
+        margin: 0 0 32px 0;
+        max-width: 380px;
+    }
+
+    .nf-highlight {
+        color: #00d9ff;
+        font-weight: 600;
+        padding: 1px 6px;
+        background: rgba(0, 217, 255, 0.08);
+        border-radius: 4px;
+        border: 1px solid rgba(0, 217, 255, 0.2);
+    }
+
+    /* ============================================
+       Action buttons
+       ============================================ */
+    .nf-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 28px;
+        width: 100%;
+    }
+
+    .nf-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 22px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        text-decoration: none !important;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-family: inherit;
+        border: 1px solid transparent;
+        min-height: 46px;
+        white-space: nowrap;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nf-btn .icon {
+        margin: 0 !important;
+        font-size: 0.9rem;
+        transition: transform 0.2s ease;
+    }
+
+    .nf-btn:hover .icon {
+        transform: translateX(-2px);
+    }
+
+    /* Primary button — cyan/purple gradient */
+    .nf-btn-primary {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%);
+        color: #fff !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+    }
+
+    .nf-btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .nf-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55);
+        color: #fff !important;
+    }
+
+    .nf-btn-primary:hover::after {
+        left: 100%;
+    }
+
+    /* Secondary button — outline */
+    .nf-btn-secondary {
+        background: rgba(10, 14, 23, 0.7);
+        border-color: rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+    }
+
+    .nf-btn-secondary:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.6);
+        color: #00d9ff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+    }
+
+    .nf-btn-secondary:hover .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ============================================
+       Hint
+       ============================================ */
+    .nf-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        border-radius: 10px;
+        font-size: 0.78rem;
+        color: #b79cff;
+        line-height: 1.4;
+        text-align: left;
+        max-width: 100%;
+    }
+
+    .nf-hint .icon.info {
+        margin: 0 !important;
+        font-size: 0.9rem !important;
+        color: #b79cff !important;
+        flex-shrink: 0;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 600px) {
+        .device-notfound {
+            min-height: 480px;
+            padding: 40px 18px;
+            border-radius: 16px;
+        }
+
+        .nf-icon-wrap {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 26px;
+        }
+
+        .nf-icon {
+            width: 78px;
+            height: 78px;
+        }
+
+        .nf-icon .icon.mobile.alternate {
+            font-size: 2.1rem !important;
+        }
+
+        .nf-icon-cross {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem !important;
+        }
+
+        .nf-title {
+            font-size: 1.1rem !important;
+            letter-spacing: 2px;
+        }
+
+        .nf-subtitle {
+            font-size: 0.85rem;
+            margin-bottom: 26px;
+        }
+
+        .nf-actions {
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .nf-btn {
+            width: 100%;
+            padding: 12px 18px;
+        }
+
+        .nf-hint {
+            font-size: 0.72rem;
+            padding: 9px 12px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .device-notfound {
+            padding: 32px 14px;
+        }
+
+        .nf-icon-wrap {
+            width: 100px;
+            height: 100px;
+        }
+
+        .nf-icon {
+            width: 66px;
+            height: 66px;
+        }
+
+        .nf-icon .icon.mobile.alternate {
+            font-size: 1.8rem !important;
+        }
+
+        .nf-icon-cross {
+            width: 24px;
+            height: 24px;
+            font-size: 0.7rem !important;
+        }
+
+        .nf-title {
+            font-size: 1rem !important;
+            letter-spacing: 1.5px;
+        }
+
+        .nf-subtitle {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* ============================================
+       Reduced motion
+       ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+        .nf-orb,
+        .nf-icon,
+        .nf-icon-cross,
+        .nf-icon-ring,
+        .nf-btn-primary::after {
+            animation: none !important;
+        }
+    }
+</style>

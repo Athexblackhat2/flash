@@ -1,0 +1,903 @@
+<div class="ui segment wifi-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="wifi-toolbar">
+        <div class="wifi-toolbar-left">
+            <div class="wifi-title">
+                <i class="icon wifi"></i>
+                <span>WiFi Networks</span>
+                <span class="wifi-count" id="wifiCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.now.length + pageData.log.length %>
+                </span>
+            </div>
+            <div class="wifi-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="wifiSearch" placeholder="Search SSID or BSSID..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="wifi-toolbar-right">
+            <button onclick="updateButton(this, '0xWI')" class="ui blue button wifi-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         SECTION: CURRENT
+         ============================================ -->
+    <div class="wifi-section">
+        <div class="wifi-section-header">
+            <div class="wifi-section-title">
+                <span class="wifi-live-dot"></span>
+                <i class="icon broadcast"></i>
+                <span>Current Networks</span>
+                <span class="wifi-section-count"><%= pageData.now.length %></span>
+            </div>
+        </div>
+
+        <% if (pageData.now.length === 0) { %>
+        <div class="wifi-empty">
+            <i class="icon wifi"></i>
+            <p>No active networks detected</p>
+        </div>
+        <% } else { %>
+        <div class="wifi-table-wrap">
+            <table class="ui celled table wifi-table wifi-now-table">
+                <thead>
+                    <tr>
+                        <th>SSID</th>
+                        <th>BSSID</th>
+                    </tr>
+                </thead>
+                <tbody id="wifiNowTbody">
+                    <% pageData.now.forEach((wifi) => {
+                        let ssid = wifi.SSID || '<hidden>';
+                        let bssid = wifi.BSSID || 'unknown';
+                        // Deterministic hue from SSID
+                        let hue = 0;
+                        for (let i = 0; i < ssid.length; i++) hue = (hue + ssid.charCodeAt(i) * (i + 1)) % 360;
+                    %>
+                    <tr class="wifi-row wifi-now-row">
+                        <td data-label="SSID">
+                            <div class="wifi-ssid-cell">
+                                <div class="wifi-ssid-icon" style="--hue: <%= hue %>;">
+                                    <i class="icon wifi"></i>
+                                </div>
+                                <div class="wifi-ssid-info">
+                                    <span class="wifi-ssid-name" title="<%= ssid %>"><%= ssid %></span>
+                                    <div class="wifi-signal">
+                                        <span class="sig-bar sig-1"></span>
+                                        <span class="sig-bar sig-2"></span>
+                                        <span class="sig-bar sig-3"></span>
+                                        <span class="sig-bar sig-4"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="BSSID">
+                            <code class="wifi-bssid"><%= bssid %></code>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- ============================================
+         SECTION: HISTORY
+         ============================================ -->
+    <div class="wifi-section">
+        <div class="wifi-section-header">
+            <div class="wifi-section-title">
+                <i class="icon history"></i>
+                <span>Network History</span>
+                <span class="wifi-section-count"><%= pageData.log.length %></span>
+            </div>
+        </div>
+
+        <% if (pageData.log.length === 0) { %>
+        <div class="wifi-empty">
+            <i class="icon history"></i>
+            <p>No network history yet</p>
+        </div>
+        <% } else { %>
+        <div class="wifi-table-wrap">
+            <table class="ui celled table wifi-table wifi-log-table">
+                <thead>
+                    <tr>
+                        <th>SSID</th>
+                        <th>BSSID</th>
+                        <th>Discovered On</th>
+                        <th>Last Seen</th>
+                    </tr>
+                </thead>
+                <tbody id="wifiLogTbody">
+                    <% pageData.log.forEach((wifi) => {
+                        let firstSeen = new Date(wifi.firstSeen);
+                        let lastSeen = new Date(wifi.lastSeen);
+                        let ssid = wifi.SSID || '<hidden>';
+                        let bssid = wifi.BSSID || 'unknown';
+                        let hue = 0;
+                        for (let i = 0; i < ssid.length; i++) hue = (hue + ssid.charCodeAt(i) * (i + 1)) % 360;
+                    %>
+                    <tr class="wifi-row wifi-log-row">
+                        <td data-label="SSID">
+                            <div class="wifi-ssid-cell">
+                                <div class="wifi-ssid-icon" style="--hue: <%= hue %>;">
+                                    <i class="icon wifi"></i>
+                                </div>
+                                <span class="wifi-ssid-name" title="<%= ssid %>"><%= ssid %></span>
+                            </div>
+                        </td>
+                        <td data-label="BSSID">
+                            <code class="wifi-bssid"><%= bssid %></code>
+                        </td>
+                        <td data-label="Discovered On">
+                            <div class="wifi-time">
+                                <i class="icon calendar alternate outline"></i>
+                                <span><%= firstSeen.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                            </div>
+                        </td>
+                        <td data-label="Last Seen">
+                            <div class="wifi-time wifi-time-recent">
+                                <i class="icon clock outline"></i>
+                                <span><%= lastSeen.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Empty search state -->
+    <div class="wifi-empty-search" id="wifiEmptySearch" style="display: none;">
+        <i class="icon search"></i>
+        <p>No networks match your search</p>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       WIFI MANAGER — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.wifi-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+        color: #e6edf3;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .wifi-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .wifi-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .wifi-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .wifi-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .wifi-title .icon.wifi {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+        animation: wifiPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes wifiPulse {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.55; }
+    }
+
+    .wifi-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .wifi-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .wifi-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .wifi-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .wifi-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .wifi-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .wifi-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.wifi-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.wifi-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.wifi-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.wifi-update-btn:hover::after { left: 100%; }
+    .ui.blue.button.wifi-update-btn:hover .icon { animation: spin 1s linear infinite; }
+    .ui.blue.button.wifi-update-btn .icon { margin: 0 !important; }
+    .ui.blue.button.wifi-update-btn.loading { pointer-events: none; opacity: 0.8; }
+    .ui.blue.button.wifi-update-btn.loading .icon { animation: spin 1s linear infinite; }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+    .wifi-section {
+        margin-bottom: 28px;
+    }
+
+    .wifi-section:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .wifi-section-header {
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .wifi-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+    }
+
+    .wifi-section-title .icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    /* Live pulsing dot for "Current" */
+    .wifi-live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00ff9d;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: livePulse 1.8s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes livePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    .wifi-section-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 26px;
+        height: 22px;
+        padding: 0 8px;
+        background: rgba(0, 217, 255, 0.1);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        margin-left: auto;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .wifi-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.wifi-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    table.ui.celled.table.wifi-table thead th {
+        background: rgba(10, 14, 23, 0.85) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 13px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.wifi-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.wifi-table tbody tr.wifi-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.wifi-table tbody tr.wifi-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Current networks — green hover (live feel) */
+    table.ui.celled.table.wifi-now-table tbody tr.wifi-row:hover {
+        background: rgba(0, 255, 157, 0.06) !important;
+    }
+
+    /* SSID cell */
+    .wifi-ssid-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .wifi-ssid-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(
+            135deg,
+            hsla(var(--hue, 200), 70%, 55%, 0.15) 0%,
+            hsla(var(--hue, 200), 70%, 45%, 0.08) 100%
+        );
+        border: 1px solid hsla(var(--hue, 200), 70%, 55%, 0.35);
+        box-shadow: 0 0 12px hsla(var(--hue, 200), 80%, 55%, 0.15);
+        transition: all 0.25s ease;
+    }
+
+    .wifi-ssid-icon .icon.wifi {
+        color: hsl(var(--hue, 200), 80%, 65%) !important;
+        margin: 0 !important;
+        font-size: 1.05rem !important;
+        filter: drop-shadow(0 0 6px hsla(var(--hue, 200), 80%, 55%, 0.5));
+    }
+
+    tr.wifi-row:hover .wifi-ssid-icon {
+        transform: scale(1.08);
+        box-shadow: 0 0 20px hsla(var(--hue, 200), 80%, 55%, 0.35);
+    }
+
+    .wifi-ssid-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .wifi-ssid-name {
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    tr.wifi-row:hover .wifi-ssid-name {
+        color: #fff;
+    }
+
+    /* Signal bars (decorative — always full) */
+    .wifi-signal {
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 12px;
+    }
+
+    .sig-bar {
+        display: block;
+        width: 3px;
+        border-radius: 2px;
+        background: #00d9ff;
+        box-shadow: 0 0 4px rgba(0, 217, 255, 0.5);
+        transition: all 0.25s ease;
+    }
+
+    .sig-bar.sig-1 { height: 4px; opacity: 0.5; }
+    .sig-bar.sig-2 { height: 7px; opacity: 0.7; }
+    .sig-bar.sig-3 { height: 10px; opacity: 0.85; }
+    .sig-bar.sig-4 { height: 12px; }
+
+    tr.wifi-now-row:hover .sig-bar {
+        box-shadow: 0 0 8px rgba(0, 217, 255, 0.8);
+    }
+
+    /* BSSID code */
+    code.wifi-bssid {
+        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        font-size: 0.78rem !important;
+        color: #8b98a8 !important;
+        background: rgba(10, 14, 23, 0.6);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        display: inline-block;
+        transition: all 0.2s ease;
+        letter-spacing: 0.5px;
+    }
+
+    tr.wifi-row:hover code.wifi-bssid {
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.3);
+        background: rgba(0, 217, 255, 0.08);
+    }
+
+    /* Time cells */
+    .wifi-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #8b98a8;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .wifi-time .icon {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.8rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.wifi-row:hover .wifi-time {
+        color: #e6edf3;
+    }
+
+    tr.wifi-row:hover .wifi-time .icon {
+        color: #00d9ff !important;
+    }
+
+    /* Recent time highlight (Last Seen) */
+    .wifi-time-recent {
+        color: #5cffba;
+    }
+
+    .wifi-time-recent .icon {
+        color: #00ff9d !important;
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .wifi-empty {
+        padding: 32px 20px;
+        text-align: center;
+        color: #5a6675;
+        border: 1px dashed rgba(34, 48, 71, 0.7);
+        border-radius: 14px;
+        background: rgba(10, 14, 23, 0.3);
+    }
+
+    .wifi-empty .icon {
+        font-size: 2rem !important;
+        margin: 0 0 10px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .wifi-empty p {
+        margin: 0;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+
+    .wifi-empty-search {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+    }
+
+    .wifi-empty-search .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .wifi-empty-search p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.wifi-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .wifi-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+
+        .wifi-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .wifi-toolbar-right {
+            width: 100%;
+        }
+
+        .wifi-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .wifi-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .ui.blue.button.wifi-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        .wifi-section {
+            margin-bottom: 22px;
+        }
+
+        .wifi-section-title {
+            font-size: 0.82rem;
+            letter-spacing: 1.2px;
+        }
+
+        /* Table → cards */
+        .wifi-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.wifi-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.wifi-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.wifi-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.wifi-table tbody tr.wifi-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        /* Current networks get green accent */
+        table.ui.celled.table.wifi-now-table tbody tr.wifi-row {
+            border-left: 3px solid rgba(0, 255, 157, 0.5) !important;
+        }
+
+        /* Log gets cyan accent */
+        table.ui.celled.table.wifi-log-table tbody tr.wifi-row {
+            border-left: 3px solid rgba(0, 217, 255, 0.5) !important;
+        }
+
+        table.ui.celled.table.wifi-table tbody tr.wifi-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.wifi-table tbody td {
+            display: block !important;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.85rem;
+            text-align: left;
+            width: 100% !important;
+        }
+
+        /* First cell (SSID) as card header */
+        table.ui.celled.table.wifi-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .wifi-ssid-icon {
+            width: 42px;
+            height: 42px;
+        }
+
+        .wifi-ssid-name {
+            font-size: 0.9rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        code.wifi-bssid {
+            font-size: 0.75rem !important;
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .wifi-time {
+            font-size: 0.72rem;
+            width: 100%;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .wifi-title { font-size: 0.8rem; }
+        .wifi-title .icon { font-size: 1rem; }
+        .wifi-count { font-size: 0.65rem !important; }
+        .wifi-section-title { font-size: 0.75rem; }
+        .wifi-ssid-icon { width: 38px; height: 38px; }
+        .wifi-ssid-name { font-size: 0.82rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .wifi-title .icon.wifi,
+        .wifi-count,
+        .wifi-live-dot,
+        table.ui.celled.table.wifi-table tbody tr.wifi-row {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter across both tables
+           ============================================ */
+        var searchInput = document.getElementById('wifiSearch');
+        var nowTbody = document.getElementById('wifiNowTbody');
+        var logTbody = document.getElementById('wifiLogTbody');
+        var emptySearch = document.getElementById('wifiEmptySearch');
+        var countBadge = document.getElementById('wifiCount');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var visible = 0;
+                var total = 0;
+
+                [nowTbody, logTbody].forEach(function (tbody) {
+                    if (!tbody) return;
+                    var rows = tbody.querySelectorAll('tr.wifi-row');
+                    rows.forEach(function (row) {
+                        total++;
+                        var text = row.textContent.toLowerCase();
+                        if (!q || text.indexOf(q) !== -1) {
+                            row.style.display = '';
+                            visible++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Show/hide empty search state
+                if (emptySearch) {
+                    emptySearch.style.display = (q && visible === 0 && total > 0) ? 'block' : 'none';
+                }
+
+                // Update count badge
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+
+                // Hide section empty states when searching (since we have our own)
+                // But show them back when search is cleared and they still have no items
+            });
+        }
+    })();
+</script>

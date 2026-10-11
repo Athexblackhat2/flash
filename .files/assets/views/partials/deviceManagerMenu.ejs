@@ -1,0 +1,357 @@
+<div class="four wide column">
+
+    <!-- Mobile toggle button -->
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle menu">
+        <i class="icon bars"></i>
+        <span>Menu</span>
+        <i class="icon chevron down caret"></i>
+    </button>
+
+    <div class="ui vertical fluid menu hoverEdit device-menu" id="deviceMenu">
+
+        <a href="<%= baseURL %>/info" class="item <% if (page==='info') { %> active <% } %>">
+            <i class="icon info"></i> <span class="menu-label">Info</span>
+        </a>
+
+        <a href="<%= baseURL %>/gps" class="item <% if (page==='gps') { %> active <% } %>">
+            <i class="icon map marker alternate"></i> <span class="menu-label">GPS</span>
+        </a>
+
+        <a href="<%= baseURL %>/microphone" class="item <% if (page==='microphone') { %> active <% } %>">
+            <i class="icon microphone"></i> <span class="menu-label">Microphone</span>
+        </a>
+
+        <a href="<%= baseURL %>/contacts" class="item <% if (page==='contacts') { %> active <% } %>">
+            <i class="icon address book"></i> <span class="menu-label">Contacts</span>
+        </a>
+
+        <a href="<%= baseURL %>/calls" class="item <% if (page==='calls') { %> active <% } %>">
+            <i class="icon phone"></i> <span class="menu-label">Call Log</span>
+        </a>
+
+        <a href="<%= baseURL %>/clipboard" class="item <% if (page==='clipboard') { %> active <% } %>">
+            <i class="icon clipboard"></i> <span class="menu-label">Clipboard Log</span>
+        </a>
+
+        <a href="<%= baseURL %>/notifications" class="item <% if (page==='notifications') { %> active <% } %>">
+            <i class="icon exclamation"></i> <span class="menu-label">Notification Log</span>
+        </a>
+
+        <a href="<%= baseURL %>/sms" class="item <% if (page==='sms') { %> active <% } %>">
+            <i class="icon comments"></i> <span class="menu-label">SMS Manager</span>
+        </a>
+
+        <a href="<%= baseURL %>/wifi" class="item <% if (page==='wifi') { %> active <% } %>">
+            <i class="icon wifi"></i> <span class="menu-label">WiFi Manager</span>
+        </a>
+
+        <a href="<%= baseURL %>/apps" class="item <% if (page==='apps') { %> active <% } %>">
+            <i class="icon google play"></i> <span class="menu-label">Installed Apps</span>
+        </a>
+
+        <a href="<%= baseURL %>/permissions" class="item <% if (page==='permissions') { %> active <% } %>">
+            <i class="icon tasks"></i> <span class="menu-label">Allowed Permissions</span>
+        </a>
+
+        <a href="<%= baseURL %>/files" class="item <% if (page==='files') { %> active <% } %>">
+            <i class="icon folder open"></i> <span class="menu-label">File Explorer</span>
+        </a>
+
+        <a href="<%= baseURL %>/downloads" class="item <% if (page==='downloads') { %> active <% } %>">
+            <i class="icon download"></i> <span class="menu-label">Downloads</span>
+        </a>
+
+    </div>
+</div>
+
+<style type="text/css">
+    /* ============================================
+       DEVICE MANAGER MENU (Sidebar) — Dark Neon
+       ============================================ */
+
+    /* Menu toggle button (mobile only) */
+    .menu-toggle {
+        display: none;
+        width: 100%;
+        background: rgba(19, 26, 38, 0.85);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 12px;
+        color: #e6edf3;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        margin-bottom: 0;
+    }
+
+    .menu-toggle .icon.bars {
+        color: #00d9ff;
+        margin: 0;
+        font-size: 1.05rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .menu-toggle .menu-label-btn {
+        flex: 1;
+        text-align: left;
+    }
+
+    .menu-toggle .icon.chevron.caret {
+        margin: 0;
+        color: #5a6675;
+        transition: transform 0.3s ease;
+    }
+
+    .menu-toggle.open .icon.chevron.caret {
+        transform: rotate(180deg);
+        color: #00d9ff;
+    }
+
+    /* ============================================
+       MAIN MENU
+       ============================================ */
+    .ui.vertical.fluid.menu.device-menu {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 16px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        padding: 10px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        position: sticky;
+        top: 20px;
+        overflow: hidden;
+    }
+
+    /* ============================================
+       MENU ITEMS
+       ============================================ */
+    .ui.vertical.fluid.menu.device-menu .item {
+        position: relative;
+        background: transparent !important;
+        color: #8b98a8 !important;
+        border: 1px solid transparent !important;
+        border-radius: 10px !important;
+        padding: 12px 14px !important;
+        margin: 3px 0 !important;
+        font-size: 0.88rem !important;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        transition: all 0.2s ease;
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none !important;
+        overflow: hidden;
+        cursor: pointer;
+        width: calc(100% - 6px) !important;
+    }
+
+    /* Left accent bar (animates on hover/active) */
+    .ui.vertical.fluid.menu.device-menu .item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: linear-gradient(180deg, #00d9ff, #7c3aed);
+        border-radius: 0 3px 3px 0;
+        transition: height 0.25s ease;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.6);
+    }
+
+    /* Icon */
+    .ui.vertical.fluid.menu.device-menu .item .icon {
+        color: #5a6675 !important;
+        font-size: 1.05rem !important;
+        width: 1.4rem !important;
+        margin: 0 !important;
+        text-align: center;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+        opacity: 1 !important;
+    }
+
+    /* Hover state */
+    .ui.vertical.fluid.menu.device-menu .item:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.15) !important;
+        transform: translateX(2px);
+    }
+
+    .ui.vertical.fluid.menu.device-menu .item:hover::before {
+        height: 60%;
+    }
+
+    .ui.vertical.fluid.menu.device-menu .item:hover .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+        transform: scale(1.1);
+    }
+
+    /* Active state */
+    .ui.vertical.fluid.menu.device-menu .item.active {
+        background: linear-gradient(135deg,
+            rgba(0, 217, 255, 0.15),
+            rgba(124, 58, 237, 0.12)) !important;
+        color: #fff !important;
+        border-color: rgba(0, 217, 255, 0.35) !important;
+        font-weight: 700 !important;
+        box-shadow:
+            0 4px 20px rgba(0, 217, 255, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .ui.vertical.fluid.menu.device-menu .item.active::before {
+        height: 70%;
+        width: 4px;
+    }
+
+    .ui.vertical.fluid.menu.device-menu .item.active .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.8));
+    }
+
+    /* ============================================
+       MOBILE — Collapsible menu
+       ============================================ */
+    @media (max-width: 991px) {
+        .menu-toggle {
+            display: flex !important;
+        }
+
+        /* Menu hidden by default on mobile */
+        .ui.vertical.fluid.menu.device-menu {
+            max-height: 0;
+            padding: 0 10px !important;
+            margin-top: 8px !important;
+            border-radius: 0 0 16px 16px !important;
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+            transition:
+                max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease,
+                transform 0.3s ease,
+                padding 0.3s ease;
+            position: static;
+        }
+
+        .ui.vertical.fluid.menu.device-menu.open {
+            max-height: 900px;
+            padding: 10px !important;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Reset sticky on mobile */
+        .ui.vertical.fluid.menu.device-menu {
+            position: static;
+            border-radius: 16px !important;
+        }
+
+        /* Menu items slightly bigger tap target */
+        .ui.vertical.fluid.menu.device-menu .item {
+            padding: 14px 16px !important;
+            font-size: 0.92rem !important;
+        }
+
+        /* Remove hover translate on touch */
+        .ui.vertical.fluid.menu.device-menu .item:hover {
+            transform: none;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 480px) {
+        .menu-toggle {
+            font-size: 0.8rem;
+            padding: 12px 14px;
+            letter-spacing: 1.2px;
+        }
+
+        .ui.vertical.fluid.menu.device-menu .item {
+            padding: 12px 14px !important;
+            font-size: 0.88rem !important;
+        }
+    }
+
+    /* iOS safe area */
+    @supports (padding: env(safe-area-inset-left)) {
+        @media (max-width: 991px) {
+            .menu-toggle {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+            }
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        // Only run toggle logic on mobile
+        var toggle = document.getElementById('menuToggle');
+        var menu = document.getElementById('deviceMenu');
+
+        if (!toggle || !menu) return;
+
+        // Restore open state from sessionStorage (so navigating between pages keeps menu open)
+        if (sessionStorage.getItem('deviceMenuOpen') === '1' && window.innerWidth <= 991) {
+            menu.classList.add('open');
+            toggle.classList.add('open');
+        }
+
+        toggle.addEventListener('click', function () {
+            var isOpen = menu.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+            sessionStorage.setItem('deviceMenuOpen', isOpen ? '1' : '0');
+        });
+
+        // Close menu when a link is clicked (mobile only) — clean UX
+        menu.querySelectorAll('.item').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 991) {
+                    // Keep the state persisted so that on navigation to next page it opens again
+                    sessionStorage.setItem('deviceMenuOpen', '1');
+                }
+            });
+        });
+
+        // Reset on resize to desktop
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                if (window.innerWidth > 991) {
+                    menu.classList.remove('open');
+                    toggle.classList.remove('open');
+                } else {
+                    // On mobile, restore stored state
+                    if (sessionStorage.getItem('deviceMenuOpen') === '1') {
+                        menu.classList.add('open');
+                        toggle.classList.add('open');
+                    }
+                }
+            }, 150);
+        });
+    })();
+</script>

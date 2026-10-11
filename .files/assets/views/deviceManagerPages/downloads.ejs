@@ -1,0 +1,739 @@
+<div class="ui segment downloads-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="downloads-toolbar">
+        <div class="downloads-toolbar-left">
+            <div class="downloads-title">
+                <i class="icon download"></i>
+                <span>Downloads</span>
+                <span class="downloads-count" id="downloadsCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="downloads-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="downloadsSearch" placeholder="Search files..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TABLE
+         ============================================ -->
+    <div class="downloads-table-wrap">
+        <table class="ui celled table downloads-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>File Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="downloadsTbody">
+                <% pageData.forEach((item) => {
+                    let date = new Date(item.time);
+                    let fileName = item.originalName || 'unknown';
+                    // Extract extension
+                    let ext = '';
+                    let dotIdx = fileName.lastIndexOf('.');
+                    if (dotIdx > -1 && dotIdx < fileName.length - 1) {
+                        ext = fileName.substring(dotIdx + 1).toLowerCase();
+                    }
+                    // Decide icon based on extension
+                    let iconClass = 'file outline';
+                    let iconHue = 200; // default blue-ish
+                    if (['jpg','jpeg','png','gif','webp','bmp','svg','heic'].includes(ext)) {
+                        iconClass = 'file image outline';
+                        iconHue = 280; // purple
+                    } else if (['mp4','mov','avi','mkv','webm','flv','wmv'].includes(ext)) {
+                        iconClass = 'file video outline';
+                        iconHue = 330; // pink
+                    } else if (['mp3','wav','ogg','m4a','flac','aac'].includes(ext)) {
+                        iconClass = 'file audio outline';
+                        iconHue = 20; // orange
+                    } else if (['pdf'].includes(ext)) {
+                        iconClass = 'file pdf outline';
+                        iconHue = 0; // red
+                    } else if (['doc','docx','txt','rtf','odt'].includes(ext)) {
+                        iconClass = 'file word outline';
+                        iconHue = 210; // blue
+                    } else if (['xls','xlsx','csv','ods'].includes(ext)) {
+                        iconClass = 'file excel outline';
+                        iconHue = 140; // green
+                    } else if (['zip','rar','7z','tar','gz','bz2'].includes(ext)) {
+                        iconClass = 'file archive outline';
+                        iconHue = 40; // amber
+                    } else if (['apk'].includes(ext)) {
+                        iconClass = 'android icon';
+                        iconHue = 130; // green
+                    } else if (['json','xml','js','html','css','py','sh','java','kt'].includes(ext)) {
+                        iconClass = 'file code outline';
+                        iconHue = 180; // teal
+                    }
+                %>
+                <tr class="download-row">
+                    <td class="collapsing" data-label="Date" title="<%= date.toLocaleString('en-GB', { timeZone: 'UTC' }) %>">
+                        <div class="download-date">
+                            <i class="icon clock outline"></i>
+                            <span><%= date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                        </div>
+                    </td>
+                    <td data-label="File Name">
+                        <div class="download-file">
+                            <div class="file-icon" style="--hue: <%= iconHue %>;">
+                                <i class="<%= iconClass %>"></i>
+                            </div>
+                            <div class="file-info">
+                                <span class="file-name" title="<%= fileName %>"><%= fileName %></span>
+                                <% if (ext) { %>
+                                <span class="file-ext"><%= ext.toUpperCase() %></span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="collapsing" data-label="Actions">
+                        <div class="download-actions">
+                            <a href="<%= item.path %>" target="_blank" class="dl-btn dl-btn-open" title="Open in new tab">
+                                <i class="icon external alternate"></i>
+                                <span>Open</span>
+                            </a>
+                            <a href="<%= item.path %>" download="<%= fileName %>" class="dl-btn dl-btn-save" title="Download file">
+                                <i class="icon download"></i>
+                                <span>Save</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state (no data at all) -->
+        <% if (pageData.length === 0) { %>
+        <div class="downloads-empty">
+            <i class="icon download"></i>
+            <p>No downloads yet</p>
+        </div>
+        <% } %>
+
+        <!-- Empty state (search) -->
+        <div class="downloads-empty" id="downloadsEmptySearch" style="display: none;">
+            <i class="icon search"></i>
+            <p>No files match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       DOWNLOADS — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.downloads-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .downloads-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .downloads-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    /* Title */
+    .downloads-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .downloads-title .icon.download {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .downloads-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .downloads-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .downloads-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .downloads-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .downloads-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .downloads-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .downloads-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .downloads-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .downloads-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.downloads-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    /* Sticky header */
+    table.ui.celled.table.downloads-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.downloads-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.downloads-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.downloads-table tbody tr.download-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.downloads-table tbody tr.download-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.downloads-table tbody tr.download-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Date cell */
+    .download-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
+        color: #8b98a8;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .download-date .icon.clock {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.download-row:hover .download-date {
+        color: #e6edf3;
+    }
+
+    tr.download-row:hover .download-date .icon.clock {
+        color: #00d9ff !important;
+    }
+
+    /* File cell */
+    .download-file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    /* File icon with dynamic hue */
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(
+            135deg,
+            hsla(var(--hue, 200), 70%, 55%, 0.15) 0%,
+            hsla(var(--hue, 200), 70%, 45%, 0.08) 100%
+        );
+        border: 1px solid hsla(var(--hue, 200), 70%, 55%, 0.35);
+        box-shadow: 0 0 15px hsla(var(--hue, 200), 80%, 55%, 0.15);
+        transition: all 0.25s ease;
+    }
+
+    .file-icon .icon {
+        margin: 0 !important;
+        font-size: 1.05rem !important;
+        color: hsl(var(--hue, 200), 80%, 65%) !important;
+        filter: drop-shadow(0 0 6px hsla(var(--hue, 200), 80%, 55%, 0.5));
+    }
+
+    tr.download-row:hover .file-icon {
+        transform: scale(1.08);
+        box-shadow: 0 0 22px hsla(var(--hue, 200), 90%, 60%, 0.35);
+    }
+
+    /* File info */
+    .file-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .file-name {
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    tr.download-row:hover .file-name {
+        color: #fff;
+    }
+
+    .file-ext {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #8b98a8;
+        background: rgba(10, 14, 23, 0.6);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        padding: 1px 6px;
+        border-radius: 4px;
+        align-self: flex-start;
+    }
+
+    /* ============================================
+       ACTION BUTTONS
+       ============================================ */
+    .download-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .dl-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        text-decoration: none !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        border: 1px solid transparent;
+    }
+
+    .dl-btn .icon {
+        margin: 0 !important;
+        font-size: 0.78rem;
+        transition: transform 0.2s ease;
+    }
+
+    /* Open button — cyan */
+    .dl-btn.dl-btn-open {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.3);
+        color: #66e3ff !important;
+    }
+
+    .dl-btn.dl-btn-open:hover {
+        background: rgba(0, 217, 255, 0.2);
+        border-color: rgba(0, 217, 255, 0.6);
+        color: #a3eeff !important;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .dl-btn.dl-btn-open:hover .icon {
+        transform: translate(1px, -1px);
+    }
+
+    /* Save button — green */
+    .dl-btn.dl-btn-save {
+        background: rgba(0, 255, 157, 0.1);
+        border-color: rgba(0, 255, 157, 0.3);
+        color: #00ff9d !important;
+    }
+
+    .dl-btn.dl-btn-save:hover {
+        background: rgba(0, 255, 157, 0.2);
+        border-color: rgba(0, 255, 157, 0.6);
+        color: #5cffba !important;
+        box-shadow: 0 0 15px rgba(0, 255, 157, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .dl-btn.dl-btn-save:hover .icon {
+        animation: downloadBounce 0.5s ease;
+    }
+
+    @keyframes downloadBounce {
+        0%, 100% { transform: translateY(0); }
+        40%      { transform: translateY(2px); }
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .downloads-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .downloads-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .downloads-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.downloads-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .downloads-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .downloads-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .downloads-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .downloads-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Table becomes cards */
+        .downloads-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.downloads-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.downloads-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.downloads-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.downloads-table tbody tr.download-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 14px !important;
+            margin-bottom: 12px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.downloads-table tbody tr.download-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.downloads-table tbody td {
+            display: block !important;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.85rem;
+            text-align: left;
+            width: 100% !important;
+        }
+
+        /* Date — card header */
+        table.ui.celled.table.downloads-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .download-date {
+            font-size: 0.78rem;
+            width: 100%;
+        }
+
+        /* File info bigger on mobile */
+        .download-file {
+            gap: 14px;
+        }
+
+        .file-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+        .file-icon .icon {
+            font-size: 1.15rem !important;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            white-space: normal;
+            word-break: break-word;
+            font-weight: 600;
+        }
+
+        /* Action buttons — full width side by side */
+        .download-actions {
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .dl-btn {
+            flex: 1;
+            padding: 10px 12px;
+            font-size: 0.78rem;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .downloads-title { font-size: 0.8rem; }
+        .downloads-title .icon { font-size: 1rem; }
+        .downloads-count { font-size: 0.65rem !important; }
+        .file-icon { width: 38px; height: 38px; }
+        .file-icon .icon { font-size: 1rem !important; }
+        .file-name { font-size: 0.82rem; }
+        .dl-btn { font-size: 0.72rem; padding: 9px 8px; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.downloads-table tbody tr.download-row {
+            animation: none !important;
+        }
+        .downloads-count {
+            animation: none !important;
+        }
+        tr.download-row:hover .file-icon {
+            transform: none;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter
+           ============================================ */
+        var searchInput = document.getElementById('downloadsSearch');
+        var tbody = document.getElementById('downloadsTbody');
+        var emptySearch = document.getElementById('downloadsEmptySearch');
+        var countBadge = document.getElementById('downloadsCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.download-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>

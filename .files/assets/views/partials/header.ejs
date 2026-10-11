@@ -1,0 +1,479 @@
+<div class="cool-header">
+
+    <!-- Animated top border line -->
+    <div class="header-topline"></div>
+
+    <nav class="ui secondary menu cool-menu">
+        <!-- Logo / Brand -->
+        <div class="header item brand-item">
+            <div class="brand-wrap">
+                <div class="brand-glow"></div>
+                <img src="/logo.png" alt="flash" class="brand-logo">
+            </div>
+        </div>
+
+        <!-- Main navigation links -->
+        <a href="/" class="item nav-link">
+            <i class="icon mobile alternate"></i>
+            <span>Devices</span>
+        </a>
+
+        <a href="/builder" class="item nav-link">
+            <i class="icon wrench"></i>
+            <span>APK Builder</span>
+        </a>
+
+        <a href="/logs" class="item nav-link">
+            <i class="icon terminal"></i>
+            <span>Event Log</span>
+        </a>
+
+        <!-- Right side: logout -->
+        <div class="right menu">
+            <a href="/logout" class="item nav-link logout-link">
+                <i class="icon door"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+</div>
+
+<div class="ui divider cool-divider"></div>
+<br>
+
+<style type="text/css">
+    /* ============================================
+       TOP HEADER — Dark Neon Navigation
+       ============================================ */
+
+    .cool-header {
+        position: relative;
+        margin: -8px 0 0 0;
+    }
+
+    /* Animated top border (subtle neon line across the whole header) */
+    .header-topline {
+        position: absolute;
+        top: -8px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0, 217, 255, 0.4) 25%,
+            rgba(124, 58, 237, 0.7) 50%,
+            rgba(0, 217, 255, 0.4) 75%,
+            transparent 100%
+        );
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .header-topline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -40%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            #00d9ff,
+            #7c3aed,
+            transparent
+        );
+        filter: blur(0.5px);
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.9);
+        animation: toplineSlide 5s ease-in-out infinite;
+    }
+
+    @keyframes toplineSlide {
+        0%   { left: -40%; }
+        50%  { left: 100%; }
+        100% { left: 140%; }
+    }
+
+    /* ============================================
+       MENU — glassy container
+       ============================================ */
+    .ui.secondary.menu.cool-menu {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 16px !important;
+        box-shadow:
+            0 10px 40px rgba(0, 0, 0, 0.45),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        padding: 6px !important;
+        margin: 0 !important;
+        min-height: auto !important;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    /* Remove default item separators */
+    .ui.secondary.menu.cool-menu .item::before {
+        display: none !important;
+    }
+
+    /* ============================================
+       LOGO / BRAND
+       ============================================ */
+    .ui.secondary.menu.cool-menu .brand-item {
+        background: transparent !important;
+        padding: 4px 10px 4px 6px !important;
+        margin: 0 !important;
+        position: relative;
+    }
+
+    .brand-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .brand-logo {
+        width: 92px !important;
+        height: auto;
+        max-height: 40px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.4));
+        position: relative;
+        z-index: 2;
+        transition: filter 0.3s ease, transform 0.3s ease;
+    }
+
+    /* Brand glow (behind logo) */
+    .brand-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: 10px;
+        background: radial-gradient(
+            circle at center,
+            rgba(0, 217, 255, 0.25) 0%,
+            transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .brand-item:hover .brand-logo {
+        filter: drop-shadow(0 0 18px rgba(0, 217, 255, 0.8));
+        transform: scale(1.04);
+    }
+
+    .brand-item:hover .brand-glow {
+        opacity: 1;
+    }
+
+    /* ============================================
+       NAV LINKS
+       ============================================ */
+    .ui.secondary.menu.cool-menu .item.nav-link {
+        position: relative;
+        background: transparent !important;
+        color: #8b98a8 !important;
+        border: 1px solid transparent !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
+        margin: 2px !important;
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.3px;
+        transition: all 0.25s ease;
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+        text-decoration: none !important;
+        white-space: nowrap;
+    }
+
+    /* Icon */
+    .ui.secondary.menu.cool-menu .item.nav-link .icon {
+        color: #5a6675 !important;
+        font-size: 1.05rem !important;
+        margin: 0 !important;
+        transition: all 0.25s ease;
+        width: 1.2rem;
+        text-align: center;
+    }
+
+    /* Hover state */
+    .ui.secondary.menu.cool-menu .item.nav-link:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.2) !important;
+        transform: translateY(-1px);
+    }
+
+    .ui.secondary.menu.cool-menu .item.nav-link:hover .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+        transform: scale(1.1);
+    }
+
+    /* Active state (auto-detected via Semantic's own logic — but Semantic doesn't add .active,
+       so we rely on matching href to current path via JS below) */
+    .ui.secondary.menu.cool-menu .item.nav-link.active {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 217, 255, 0.15),
+            rgba(124, 58, 237, 0.12)
+        ) !important;
+        color: #ffffff !important;
+        border-color: rgba(0, 217, 255, 0.35) !important;
+        box-shadow:
+            0 4px 20px rgba(0, 217, 255, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .ui.secondary.menu.cool-menu .item.nav-link.active .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.8));
+    }
+
+    /* Animated underline on active */
+    .ui.secondary.menu.cool-menu .item.nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 14px;
+        right: 14px;
+        height: 2px;
+        background: linear-gradient(90deg, #00d9ff, #7c3aed);
+        border-radius: 2px;
+        box-shadow: 0 0 10px rgba(0, 217, 255, 0.7);
+        animation: underlineIn 0.3s ease;
+    }
+
+    @keyframes underlineIn {
+        from { transform: scaleX(0); }
+        to   { transform: scaleX(1); }
+    }
+
+    /* ============================================
+       LOGOUT LINK — special red-ish tint
+       ============================================ */
+    .ui.secondary.menu.cool-menu .item.logout-link:hover {
+        background: rgba(255, 56, 96, 0.1) !important;
+        color: #ff3860 !important;
+        border-color: rgba(255, 56, 96, 0.3) !important;
+    }
+
+    .ui.secondary.menu.cool-menu .item.logout-link:hover .icon {
+        color: #ff3860 !important;
+        filter: drop-shadow(0 0 6px rgba(255, 56, 96, 0.7));
+    }
+
+    /* Right menu alignment */
+    .ui.secondary.menu.cool-menu > .right.menu {
+        margin-left: auto !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    .ui.secondary.menu.cool-menu > .right.menu .item {
+        margin: 2px !important;
+    }
+
+    /* ============================================
+       DIVIDER — neon gradient
+       ============================================ */
+    .ui.divider.cool-divider {
+        border: none !important;
+        height: 2px !important;
+        margin: 16px 0 0 !important;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0, 217, 255, 0.35) 25%,
+            rgba(124, 58, 237, 0.6) 50%,
+            rgba(0, 217, 255, 0.35) 75%,
+            transparent 100%
+        ) !important;
+        position: relative;
+        overflow: hidden;
+        border-radius: 2px;
+    }
+
+    .ui.divider.cool-divider::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -30%;
+        width: 30%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            #00d9ff,
+            #7c3aed,
+            transparent
+        );
+        filter: blur(0.5px);
+        box-shadow: 0 0 14px rgba(0, 217, 255, 0.85);
+        animation: dividerSlide 4.5s ease-in-out infinite;
+    }
+
+    @keyframes dividerSlide {
+        0%   { left: -30%; }
+        50%  { left: 100%; }
+        100% { left: 130%; }
+    }
+
+    /* ============================================
+       MOBILE — Wrap and compact
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.secondary.menu.cool-menu {
+            padding: 8px !important;
+            gap: 6px;
+            border-radius: 14px !important;
+            justify-content: center;
+        }
+
+        /* Hide the text labels on mobile to save space; keep icons + short text */
+        .ui.secondary.menu.cool-menu .item.nav-link {
+            padding: 10px 12px !important;
+            font-size: 0.8rem !important;
+            flex: 0 0 auto;
+        }
+
+        /* Brand logo smaller */
+        .brand-logo {
+            width: 70px !important;
+            max-height: 34px;
+        }
+
+        .ui.secondary.menu.cool-menu .brand-item {
+            width: 100%;
+            justify-content: center;
+            padding: 6px 0 !important;
+            margin: 0 0 4px 0 !important;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.1) !important;
+        }
+
+        /* Row of nav links */
+        .ui.secondary.menu.cool-menu > .item.nav-link {
+            flex: 1 1 auto;
+            min-width: 0;
+            justify-content: center;
+            padding: 10px 8px !important;
+        }
+
+        .ui.secondary.menu.cool-menu > .item.nav-link span {
+            display: inline;
+            font-size: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Right menu (logout) full width row */
+        .ui.secondary.menu.cool-menu > .right.menu {
+            width: 100%;
+            justify-content: center;
+            border-top: 1px solid rgba(0, 217, 255, 0.1);
+            padding-top: 6px !important;
+            margin-top: 4px !important;
+        }
+
+        .ui.secondary.menu.cool-menu > .right.menu .item {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .ui.secondary.menu.cool-menu .item.nav-link.active::after {
+            left: 20%;
+            right: 20%;
+            bottom: 2px;
+        }
+    }
+
+    /* Very small phones */
+    @media (max-width: 420px) {
+        .ui.secondary.menu.cool-menu .item.nav-link {
+            padding: 9px 8px !important;
+            font-size: 0.75rem !important;
+            gap: 5px;
+        }
+
+        .ui.secondary.menu.cool-menu .item.nav-link span {
+            font-size: 0.7rem;
+        }
+
+        .ui.secondary.menu.cool-menu .item.nav-link .icon {
+            font-size: 0.95rem !important;
+        }
+
+        .brand-logo {
+            width: 60px !important;
+        }
+    }
+
+    /* iOS safe area */
+    @supports (padding: env(safe-area-inset-left)) {
+        .ui.secondary.menu.cool-menu {
+            padding-left: max(6px, env(safe-area-inset-left)) !important;
+            padding-right: max(6px, env(safe-area-inset-right)) !important;
+        }
+    }
+</style>
+
+<script>
+    /* ============================================
+       Auto-highlight active nav link based on path
+       ============================================ */
+    (function () {
+        function markActive() {
+            var path = window.location.pathname;
+            var links = document.querySelectorAll('.cool-menu .item.nav-link');
+            links.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href) return;
+
+                // Logout link: never mark active
+                if (href === '/logout') return;
+
+                // Exact match or sub-route match
+                // /           → only exact
+                // /builder    → exact or /builder/*
+                // /logs       → exact or /logs/*
+                var isActive = false;
+
+                if (href === '/') {
+                    isActive = (path === '/' || path === '/index' || path === '');
+                } else {
+                    isActive = (path === href || path.indexOf(href + '/') === 0);
+                }
+
+                if (isActive) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', markActive);
+        } else {
+            markActive();
+        }
+    })();
+</script>

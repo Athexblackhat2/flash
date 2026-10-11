@@ -1,0 +1,725 @@
+<div class="ui segment clipboard-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="clipboard-toolbar">
+        <div class="clipboard-toolbar-left">
+            <div class="clipboard-title">
+                <i class="icon clipboard"></i>
+                <span>Clipboard Log</span>
+                <span class="clipboard-count" id="clipboardCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="clipboard-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="clipboardSearch" placeholder="Search content..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TABLE
+         ============================================ -->
+    <div class="clipboard-table-wrap">
+        <table class="ui celled table clipboard-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Content</th>
+                </tr>
+            </thead>
+            <tbody id="clipboardTbody">
+                <% pageData.forEach((notification, index) => {
+                    let date = new Date(notification.time);
+                    let content = notification.content || '';
+                    let preview = content.length > 200 ? content.substring(0, 200) + '…' : content;
+                    let isLong = content.length > 200;
+                %>
+                <tr class="clip-row" data-index="<%= index %>">
+                    <td class="collapsing" data-label="Time" title="<%= date.toLocaleString('en-GB', { timeZone: 'UTC' }) %>">
+                        <div class="clip-time">
+                            <i class="icon clock outline"></i>
+                            <span><%= date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                        </div>
+                    </td>
+                    <td data-label="Content">
+                        <div class="clip-content-wrap">
+                            <div class="clip-content" data-full="<%= content.replace(/"/g, '&quot;') %>">
+                                <%= preview %>
+                            </div>
+                            <div class="clip-actions">
+                                <% if (isLong) { %>
+                                <button type="button" class="clip-btn clip-expand" title="Show full content">
+                                    <i class="icon expand arrows alternate"></i>
+                                    <span>More</span>
+                                </button>
+                                <% } %>
+                                <button type="button" class="clip-btn clip-copy" title="Copy to clipboard">
+                                    <i class="icon copy outline"></i>
+                                    <span>Copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state (no data at all) -->
+        <% if (pageData.length === 0) { %>
+        <div class="clipboard-empty">
+            <i class="icon clipboard outline"></i>
+            <p>No clipboard entries yet</p>
+        </div>
+        <% } %>
+
+        <!-- Empty state (search) -->
+        <div class="clipboard-empty" id="clipboardEmptySearch" style="display: none;">
+            <i class="icon search"></i>
+            <p>No entries match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       CLIPBOARD LOG — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.clipboard-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .clipboard-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .clipboard-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    /* Title */
+    .clipboard-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .clipboard-title .icon.clipboard {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .clipboard-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .clipboard-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .clipboard-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .clipboard-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .clipboard-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .clipboard-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .clipboard-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .clipboard-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .clipboard-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.clipboard-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+        table-layout: fixed;
+    }
+
+    /* Column widths */
+    table.ui.celled.table.clipboard-table th:first-child,
+    table.ui.celled.table.clipboard-table td:first-child {
+        width: 200px;
+    }
+
+    /* Sticky header */
+    table.ui.celled.table.clipboard-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.clipboard-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.clipboard-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: top;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.clipboard-table tbody tr.clip-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.clipboard-table tbody tr.clip-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Time cell */
+    .clip-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
+        color: #8b98a8;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .clip-time .icon.clock {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.clip-row:hover .clip-time {
+        color: #e6edf3;
+    }
+
+    tr.clip-row:hover .clip-time .icon.clock {
+        color: #00d9ff !important;
+    }
+
+    /* Content wrapper */
+    .clip-content-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .clip-content {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        color: #c5cfdb;
+        padding: 10px 14px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        border-radius: 10px;
+        border-left: 3px solid rgba(0, 217, 255, 0.4);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        transition: all 0.2s ease;
+        max-height: 120px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Fade gradient when truncated */
+    .clip-content.truncated::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        background: linear-gradient(transparent, rgba(10, 14, 23, 0.9));
+        pointer-events: none;
+    }
+
+    .clip-content.expanded {
+        max-height: none;
+        white-space: pre-wrap;
+    }
+
+    .clip-content.expanded::after {
+        display: none;
+    }
+
+    tr.clip-row:hover .clip-content {
+        border-left-color: #00d9ff;
+        background: rgba(10, 14, 23, 0.75);
+    }
+
+    /* Actions */
+    .clip-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    tr.clip-row:hover .clip-actions {
+        opacity: 1;
+    }
+
+    .clip-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(10, 14, 23, 0.7);
+        border: 1px solid rgba(34, 48, 71, 0.8);
+        border-radius: 8px;
+        color: #8b98a8;
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .clip-btn .icon {
+        margin: 0 !important;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .clip-btn:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.4);
+        color: #00d9ff;
+        transform: translateY(-1px);
+    }
+
+    .clip-btn:hover .icon {
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    .clip-btn.clip-copy.copied {
+        background: rgba(0, 255, 157, 0.12);
+        border-color: rgba(0, 255, 157, 0.4);
+        color: #00ff9d;
+    }
+
+    .clip-btn.clip-copy.copied .icon {
+        color: #00ff9d;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 157, 0.6));
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .clipboard-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .clipboard-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .clipboard-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.clipboard-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .clipboard-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .clipboard-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .clipboard-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .clipboard-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Table becomes cards */
+        .clipboard-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.clipboard-table {
+            display: block;
+            border: none !important;
+            table-layout: auto;
+        }
+
+        table.ui.celled.table.clipboard-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.clipboard-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.clipboard-table tbody tr.clip-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.clipboard-table tbody tr.clip-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.clipboard-table tbody td {
+            display: block !important;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.82rem;
+            text-align: left;
+            width: 100% !important;
+        }
+
+        /* Time cell — small header on top */
+        table.ui.celled.table.clipboard-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .clip-time {
+            font-size: 0.78rem;
+            width: 100%;
+        }
+
+        .clip-content {
+            font-size: 0.8rem;
+            max-height: 160px;
+            padding: 10px 12px;
+        }
+
+        .clip-actions {
+            opacity: 1;
+            margin-top: 4px;
+        }
+
+        .clip-btn {
+            flex: 1;
+            justify-content: center;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .clipboard-title { font-size: 0.8rem; }
+        .clipboard-title .icon { font-size: 1rem; }
+        .clipboard-count { font-size: 0.65rem !important; }
+        .clip-content { font-size: 0.75rem; }
+        .clip-btn { font-size: 0.7rem; padding: 7px 10px; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.clipboard-table tbody tr.clip-row {
+            animation: none !important;
+        }
+        .clipboard-count {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           1. Live search filter
+           ============================================ */
+        var searchInput = document.getElementById('clipboardSearch');
+        var tbody = document.getElementById('clipboardTbody');
+        var emptySearch = document.getElementById('clipboardEmptySearch');
+        var countBadge = document.getElementById('clipboardCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.clip-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+
+        /* ============================================
+           2. Expand / collapse long content
+           ============================================ */
+        document.querySelectorAll('.clip-expand').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var wrap = this.closest('.clip-content-wrap');
+                var content = wrap.querySelector('.clip-content');
+                var isExpanded = content.classList.toggle('expanded');
+                content.classList.remove('truncated');
+
+                var span = this.querySelector('span');
+                var icon = this.querySelector('i.icon');
+
+                if (isExpanded) {
+                    if (span) span.textContent = 'Less';
+                    if (icon) {
+                        icon.classList.remove('expand');
+                        icon.classList.add('compress');
+                    }
+                } else {
+                    if (span) span.textContent = 'More';
+                    if (icon) {
+                        icon.classList.remove('compress');
+                        icon.classList.add('expand');
+                    }
+                }
+            });
+        });
+
+        /* ============================================
+           3. Copy to clipboard
+           ============================================ */
+        document.querySelectorAll('.clip-copy').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var wrap = this.closest('.clip-content-wrap');
+                var content = wrap.querySelector('.clip-content');
+                var fullText = content.getAttribute('data-full') || content.textContent;
+
+                var self = this;
+
+                function showCopied() {
+                    self.classList.add('copied');
+                    var span = self.querySelector('span');
+                    var originalText = span ? span.textContent : 'Copy';
+                    if (span) span.textContent = 'Copied!';
+
+                    setTimeout(function () {
+                        self.classList.remove('copied');
+                        if (span) span.textContent = originalText;
+                    }, 1600);
+                }
+
+                // Modern API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(fullText).then(showCopied).catch(function () {
+                        fallbackCopy(fullText, showCopied);
+                    });
+                } else {
+                    fallbackCopy(fullText, showCopied);
+                }
+            });
+        });
+
+        function fallbackCopy(text, onSuccess) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                var ok = document.execCommand('copy');
+                if (ok && typeof onSuccess === 'function') onSuccess();
+            } catch (e) {
+                console.warn('Copy failed:', e);
+            }
+            document.body.removeChild(ta);
+        }
+    })();
+</script>

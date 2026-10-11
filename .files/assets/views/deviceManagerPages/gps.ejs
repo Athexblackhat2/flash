@@ -1,0 +1,1234 @@
+<link rel="stylesheet" href="/css/leaflet.css">
+<script src="/js/leaflet.js"></script>
+
+<!-- ============================================
+     TABS
+     ============================================ -->
+<div class="ui top attached tabular menu gps-tabs">
+    <a class="item active" data-tab="now">
+        <i class="icon map marker alternate"></i>
+        <span>GPS Now</span>
+    </a>
+    <a class="item" data-tab="log">
+        <i class="icon history"></i>
+        <span>GPS Log</span>
+    </a>
+    <a class="item" data-tab="settings">
+        <i class="icon cog"></i>
+        <span>GPS Settings</span>
+    </a>
+</div>
+
+<%
+let latest = {
+    "time": "2000-01-01T00:00:00.005Z",
+    "enabled": true,
+    "latitude": 0,
+    "longitude": 0,
+    "altitude": 0,
+    "accuracy": 0,
+    "speed": 0
+};
+if(pageData.length !== 0) {
+    if(pageData[pageData.length-1].speed !== undefined) latest = pageData[pageData.length-1];
+}
+%>
+
+<!-- ============================================
+     TAB: GPS NOW
+     ============================================ -->
+<div class="ui bottom attached tab segment active gps-panel" data-tab="now">
+
+    <div class="gps-map-wrap">
+        <div id="GPS_NOW_MAP" class="gps-map" style="width: 100%; height: 340px;"></div>
+        <div class="gps-map-badge">
+            <i class="icon dot circle"></i>
+            <span id="gpsNowStatus">Live</span>
+        </div>
+    </div>
+
+    <div class="gps-meta-row">
+        <div class="gps-meta">
+            <i class="icon clock outline"></i>
+            <span><%= new Date(latest.time).toLocaleString('en-GB', { timeZone: 'UTC' }) %></span>
+        </div>
+        <div class="gps-meta">
+            <i class="icon compass"></i>
+            <span>Accuracy: <%= (latest.accuracy || 0).toFixed(2) %>m</span>
+        </div>
+        <div class="gps-meta">
+            <i class="icon tachometer alternate"></i>
+            <span>Speed: <%= (latest.speed || 0).toFixed(2) %> mph</span>
+        </div>
+    </div>
+
+    <button onclick="updateButton(this, '0xLO')" class="ui button fluid positive gps-request-btn" type="submit">
+        <i class="map marker alternate icon"></i>
+        <span>Request Update</span>
+    </button>
+
+    <script>
+        var GPS_NOW_MAP = L.map('GPS_NOW_MAP', { zoomControl: true }).setView([<%= latest.latitude %>, <%= latest.longitude %>], 13);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(GPS_NOW_MAP);
+
+        // Custom pulsing marker
+        var pulseIcon = L.divIcon({
+            className: 'gps-pulse-marker',
+            html: '<div class="pulse-ring"></div><div class="pulse-dot"></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        var currentLocationMarker = L.marker([<%= latest.latitude %>, <%= latest.longitude %>], {
+            icon: pulseIcon
+        }).addTo(GPS_NOW_MAP);
+
+        currentLocationMarker.bindPopup(
+            "<b>Time:</b> <%= new Date(latest.time).toLocaleString('en-GB', { timeZone: 'UTC' }) %><br>" +
+            "<b>Speed:</b> <%= (latest.speed || 0).toFixed(2) %> mph<br>" +
+            "<b>Accuracy:</b> <%= (latest.accuracy || 0).toFixed(2) %> m"
+        );
+    </script>
+</div>
+
+<%
+
+let sorted = {};
+
+pageData.forEach((item) => {
+    let date = new Date(item.time);
+    let month = date.getUTCMonth() + 1;
+    let day = date.getUTCDate();
+    let year = date.getUTCFullYear();
+
+    newdate = day + "-" + month + "-" + year;
+    if(item.latitude !== undefined && item.longitude !== undefined && item.speed !== undefined && item.accuracy !== undefined){
+        if(sorted[newdate]) {
+            sorted[newdate].push(item);
+        } else sorted[newdate] = [item];
+    }
+});
+
+%>
+
+<!-- ============================================
+     TAB: GPS LOG
+     ============================================ -->
+<div class="ui bottom attached tab segment gps-panel" data-tab="log">
+
+    <div class="gps-map-wrap">
+        <div id="GPS_LOG_MAP" class="gps-map" style="width: 100%; height: 500px;"></div>
+        <div class="gps-map-badge">
+            <i class="icon history"></i>
+            <span>History Trail</span>
+        </div>
+    </div>
+
+    <script>
+        var GPS_LOG_MAP = L.map('GPS_LOG_MAP', { zoomControl: true }).setView([<%= latest.latitude %>, <%= latest.longitude %>], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(GPS_LOG_MAP);
+
+        var logLayer = L.layerGroup().addTo(GPS_LOG_MAP);
+
+        function loadLogToMap(date) {
+            var data = mapData[date];
+            var latlngs = data.map(({ latitude, longitude }) => ([latitude, longitude]))
+            logLayer.clearLayers();
+            var path = L.polyline(latlngs, {
+                weight: 4,
+                color: '#00d9ff',
+                opacity: 0.9,
+                lineCap: 'round',
+                lineJoin: 'round',
+                // Glow via SVG filter will be applied via CSS below
+            }).addTo(logLayer);
+
+            // Start marker (green) and end marker (red)
+            if (latlngs.length > 0) {
+                L.circleMarker(latlngs[0], {
+                    radius: 7,
+                    fillColor: '#00ff9d',
+                    color: '#0a0e17',
+                    weight: 2,
+                    fillOpacity: 1
+                }).addTo(logLayer).bindPopup('Start');
+
+                L.circleMarker(latlngs[latlngs.length - 1], {
+                    radius: 7,
+                    fillColor: '#ff3860',
+                    color: '#0a0e17',
+                    weight: 2,
+                    fillOpacity: 1
+                }).addTo(logLayer).bindPopup('End');
+            }
+
+            GPS_LOG_MAP.addLayer(path);
+            GPS_LOG_MAP.fitBounds(path.getBounds(), { padding: [30, 30] });
+
+            // Highlight active row
+            document.querySelectorAll('tr.gps-log-row').forEach(r => r.classList.remove('active'));
+            var activeRow = document.querySelector('tr.gps-log-row[data-date="' + date + '"]');
+            if (activeRow) activeRow.classList.add('active');
+        }
+    </script>
+
+    <div class="gps-log-table-wrap">
+        <table class="ui celled table gps-log-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Entries</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (const [key, value] of Object.entries(sorted)) { %>
+                <tr class="gps-log-row" data-date="<%= key %>">
+                    <td data-label="Date">
+                        <div class="gps-log-date">
+                            <i class="icon calendar alternate outline"></i>
+                            <span><%= key %></span>
+                        </div>
+                    </td>
+                    <td data-label="Entries">
+                        <span class="gps-entry-badge">
+                            <i class="icon map marker alternate"></i>
+                            <%= value.length %>
+                        </span>
+                    </td>
+                    <td class="collapsing" data-label="View">
+                        <button type="button" class="gps-view-btn"
+                                onclick="loadLogToMap('<%= key %>')">
+                            <i class="icon eye"></i>
+                            <span>View</span>
+                        </button>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <% if (Object.keys(sorted).length === 0) { %>
+        <div class="gps-empty">
+            <i class="icon map marker alternate"></i>
+            <p>No GPS history yet</p>
+        </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- ============================================
+     TAB: GPS SETTINGS
+     ============================================ -->
+<div class="ui bottom attached tab segment gps-panel" data-tab="settings">
+
+    <div class="gps-settings-card">
+        <div class="gps-settings-icon">
+            <i class="icon satellite dish"></i>
+        </div>
+
+        <h3 class="gps-settings-title">Update Interval</h3>
+        <p class="gps-settings-desc">
+            Set how often you want to poll the client for an updated GPS position.
+            Recommended intervals are <strong>above 5 minutes</strong> — anything less would be of no benefit.
+        </p>
+
+        <div class="gps-settings-input-row">
+            <div class="gps-interval-input">
+                <input type="number" placeholder="Interval" id="gpsInterval" min="1">
+            </div>
+            <div class="ui dropdown label gps-interval-unit">
+                <div id="intervalMeasure" class="text">minutes</div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <div class="item">hours</div>
+                    <div class="item">seconds</div>
+                </div>
+            </div>
+            <button class="positive ui button gps-set-btn" onclick="updateGPSInterval()">
+                <i class="icon check circle"></i>
+                <span>SET</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       GPS PAGE — Dark Neon Theme
+       ============================================ */
+
+    /* -------- TABS -------- */
+    .ui.top.attached.tabular.menu.gps-tabs {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-bottom: none !important;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 6px !important;
+        margin: 0 !important;
+        gap: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        box-shadow: none !important;
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item {
+        color: #8b98a8 !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 11px 18px !important;
+        border: 1px solid transparent !important;
+        border-radius: 10px !important;
+        margin: 2px !important;
+        transition: all 0.25s ease;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item .icon {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item:hover {
+        color: #00d9ff !important;
+        background: rgba(0, 217, 255, 0.06) !important;
+        border-color: rgba(0, 217, 255, 0.2) !important;
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item:hover .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item.active {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 217, 255, 0.18),
+            rgba(124, 58, 237, 0.12)
+        ) !important;
+        color: #ffffff !important;
+        border-color: rgba(0, 217, 255, 0.35) !important;
+        box-shadow:
+            0 4px 20px rgba(0, 217, 255, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .ui.top.attached.tabular.menu.gps-tabs .item.active .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.8));
+    }
+
+    /* Hide default semantic tabular active border */
+    .ui.top.attached.tabular.menu.gps-tabs .item.active:before {
+        display: none !important;
+    }
+
+    /* -------- PANELS -------- */
+    .ui.bottom.attached.tab.segment.gps-panel {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-top: none !important;
+        border-radius: 0 0 16px 16px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        padding: 20px !important;
+        color: #e6edf3 !important;
+    }
+
+    /* ============================================
+       MAP WRAPPER
+       ============================================ */
+    .gps-map-wrap {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        box-shadow:
+            0 0 30px rgba(0, 217, 255, 0.08),
+            inset 0 0 40px rgba(0, 0, 0, 0.3);
+        margin-bottom: 16px;
+        background: #0d1117;
+    }
+
+    .gps-map {
+        display: block;
+        z-index: 1;
+        background: #0d1117;
+    }
+
+    /* Map badge (top-right overlay) */
+    .gps-map-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 400;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: rgba(10, 14, 23, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        border-radius: 20px;
+        color: #00d9ff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+        pointer-events: none;
+    }
+
+    .gps-map-badge .icon.dot.circle {
+        color: #00ff9d !important;
+        margin: 0 !important;
+        animation: dotPulse 1.8s ease-in-out infinite;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 157, 0.8));
+    }
+
+    @keyframes dotPulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Leaflet dark theme overrides */
+    .gps-map .leaflet-container {
+        background: #0d1117 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* Leaflet popup dark style */
+    .gps-map .leaflet-popup-content-wrapper,
+    .gps-map .leaflet-popup-tip {
+        background: #131a26 !important;
+        color: #e6edf3 !important;
+        border: 1px solid rgba(0, 217, 255, 0.3) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .gps-map .leaflet-popup-content {
+        color: #e6edf3 !important;
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
+        margin: 10px 14px !important;
+    }
+
+    .gps-map .leaflet-popup-content b {
+        color: #00d9ff !important;
+    }
+
+    .gps-map .leaflet-popup-close-button {
+        color: #8b98a8 !important;
+    }
+
+    .gps-map .leaflet-popup-close-button:hover {
+        color: #00d9ff !important;
+    }
+
+    /* Zoom controls dark */
+    .gps-map .leaflet-control-zoom a {
+        background: #131a26 !important;
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.3) !important;
+        transition: all 0.2s ease;
+    }
+
+    .gps-map .leaflet-control-zoom a:hover {
+        background: rgba(0, 217, 255, 0.15) !important;
+        color: #ffffff !important;
+    }
+
+    /* Attribution dark */
+    .gps-map .leaflet-control-attribution {
+        background: rgba(10, 14, 23, 0.85) !important;
+        color: #5a6675 !important;
+        font-size: 10px !important;
+        border-top-left-radius: 6px;
+    }
+
+    .gps-map .leaflet-control-attribution a {
+        color: #00d9ff !important;
+    }
+
+    /* ---- Custom pulsing marker ---- */
+    .gps-pulse-marker {
+        position: relative;
+    }
+
+    .gps-pulse-marker .pulse-dot {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 14px;
+        height: 14px;
+        background: #00d9ff;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.9), 0 0 30px rgba(0, 217, 255, 0.5);
+        z-index: 2;
+    }
+
+    .gps-pulse-marker .pulse-ring {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(0, 217, 255, 0.6);
+        border-radius: 50%;
+        animation: markerPulse 2s ease-out infinite;
+        z-index: 1;
+    }
+
+    @keyframes markerPulse {
+        0% {
+            transform: translate(-50%, -50%) scale(0.5);
+            opacity: 0.9;
+        }
+        100% {
+            transform: translate(-50%, -50%) scale(1.8);
+            opacity: 0;
+        }
+    }
+
+    /* ============================================
+       META ROW (time, accuracy, speed)
+       ============================================ */
+    .gps-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .gps-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        background: rgba(10, 14, 23, 0.55);
+        border: 1px solid rgba(34, 48, 71, 0.7);
+        border-radius: 10px;
+        font-size: 0.8rem;
+        color: #c5cfdb;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        flex: 1 1 auto;
+        min-width: 0;
+        transition: all 0.2s ease;
+    }
+
+    .gps-meta:hover {
+        border-color: rgba(0, 217, 255, 0.3);
+        background: rgba(0, 217, 255, 0.05);
+    }
+
+    .gps-meta .icon {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .gps-meta:hover .icon {
+        color: #00d9ff !important;
+    }
+
+    .gps-meta span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Request button */
+    .ui.button.fluid.positive.gps-request-btn {
+        background: linear-gradient(135deg, #00ff9d 0%, #00b377 100%) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: #002218 !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 15px !important;
+        min-height: 50px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 25px rgba(0, 255, 157, 0.35) !important;
+        cursor: pointer;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .ui.button.fluid.positive.gps-request-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.button.fluid.positive.gps-request-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 255, 157, 0.6) !important;
+    }
+
+    .ui.button.fluid.positive.gps-request-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.button.fluid.positive.gps-request-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.button.fluid.positive.gps-request-btn.loading {
+        pointer-events: none;
+    }
+
+    /* ============================================
+       GPS LOG TABLE
+       ============================================ */
+    .gps-log-table-wrap {
+        margin-top: 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        overflow: hidden;
+    }
+
+    table.ui.celled.table.gps-log-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    table.ui.celled.table.gps-log-table thead th {
+        background: rgba(10, 14, 23, 0.85) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 13px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.gps-log-table tbody td {
+        padding: 12px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+    }
+
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(1) { animation-delay: 0.00s; }
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(2) { animation-delay: 0.03s; }
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(3) { animation-delay: 0.06s; }
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(4) { animation-delay: 0.09s; }
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(5) { animation-delay: 0.12s; }
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:nth-child(n+6) { animation-delay: 0.15s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Active row (currently viewed on map) */
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row.active {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 217, 255, 0.12),
+            rgba(124, 58, 237, 0.08)
+        ) !important;
+        border-left: 3px solid #00d9ff !important;
+    }
+
+    table.ui.celled.table.gps-log-table tbody tr.gps-log-row.active .gps-log-date {
+        color: #00d9ff;
+    }
+
+    /* Date cell */
+    .gps-log-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.82rem;
+        color: #c5cfdb;
+        transition: color 0.2s ease;
+    }
+
+    .gps-log-date .icon.calendar {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.gps-log-row:hover .gps-log-date .icon.calendar,
+    tr.gps-log-row.active .gps-log-date .icon.calendar {
+        color: #00d9ff !important;
+    }
+
+    /* Entry badge */
+    .gps-entry-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        background: rgba(0, 217, 255, 0.1);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0.5px;
+    }
+
+    .gps-entry-badge .icon {
+        margin: 0 !important;
+        font-size: 0.72rem !important;
+    }
+
+    /* View button */
+    .gps-view-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: rgba(10, 14, 23, 0.7);
+        border: 1px solid rgba(34, 48, 71, 0.8);
+        border-radius: 8px;
+        color: #8b98a8;
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .gps-view-btn .icon {
+        margin: 0 !important;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+    }
+
+    .gps-view-btn:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.5);
+        color: #00d9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.25);
+    }
+
+    .gps-view-btn:hover .icon {
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.7));
+    }
+
+    /* ============================================
+       SETTINGS TAB
+       ============================================ */
+    .gps-settings-card {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 28px 24px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.7);
+        border-radius: 16px;
+        text-align: center;
+    }
+
+    .gps-settings-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(124, 58, 237, 0.12));
+        border: 2px solid rgba(0, 217, 255, 0.3);
+        box-shadow:
+            0 0 25px rgba(0, 217, 255, 0.25),
+            inset 0 0 20px rgba(0, 217, 255, 0.08);
+        animation: iconFloat 3.5s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-5px); }
+    }
+
+    .gps-settings-icon .icon {
+        font-size: 1.8rem !important;
+        color: #00d9ff !important;
+        margin: 0 !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.6));
+    }
+
+    .gps-settings-title {
+        font-size: 1.1rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #e6edf3 !important;
+        margin: 0 0 12px !important;
+    }
+
+    .gps-settings-desc {
+        font-size: 0.85rem !important;
+        line-height: 1.6;
+        color: #8b98a8;
+        margin: 0 0 24px !important;
+    }
+
+    .gps-settings-desc strong {
+        color: #00d9ff;
+        font-weight: 600;
+    }
+
+    .gps-settings-input-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .gps-interval-input {
+        flex: 1 1 130px;
+        min-width: 0;
+    }
+
+    .gps-interval-input input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.85) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 12px 14px !important;
+        font-size: 16px !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        text-align: center;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        min-height: 46px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .gps-interval-input input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .gps-interval-input input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Remove number spinners */
+    .gps-interval-input input::-webkit-outer-spin-button,
+    .gps-interval-input input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .gps-interval-input input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* Unit dropdown */
+    .ui.dropdown.label.gps-interval-unit {
+        background: rgba(0, 217, 255, 0.08) !important;
+        border: 1px solid rgba(0, 217, 255, 0.3) !important;
+        border-radius: 10px !important;
+        color: #00d9ff !important;
+        padding: 12px 36px 12px 14px !important;
+        font-size: 0.85rem !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        min-height: 46px;
+        display: flex !important;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        min-width: 120px;
+        text-transform: capitalize;
+    }
+
+    .ui.dropdown.label.gps-interval-unit:hover {
+        background: rgba(0, 217, 255, 0.15) !important;
+        border-color: rgba(0, 217, 255, 0.5) !important;
+    }
+
+    .ui.dropdown.label.gps-interval-unit .dropdown.icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .ui.dropdown.label.gps-interval-unit .menu {
+        background: #131a26 !important;
+        border: 1px solid rgba(0, 217, 255, 0.3) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
+        margin-top: 6px !important;
+        overflow: hidden;
+    }
+
+    .ui.dropdown.label.gps-interval-unit .menu .item {
+        color: #c5cfdb !important;
+        font-size: 0.85rem !important;
+        padding: 10px 16px !important;
+        transition: all 0.15s ease;
+        text-transform: capitalize;
+    }
+
+    .ui.dropdown.label.gps-interval-unit .menu .item:hover,
+    .ui.dropdown.label.gps-interval-unit .menu .item.active {
+        background: rgba(0, 217, 255, 0.15) !important;
+        color: #00d9ff !important;
+    }
+
+    /* SET button */
+    .ui.positive.button.gps-set-btn {
+        background: linear-gradient(135deg, #00ff9d 0%, #00b377 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #002218 !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 12px 24px !important;
+        min-height: 46px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.3) !important;
+        cursor: pointer;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .ui.positive.button.gps-set-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 30px rgba(0, 255, 157, 0.55) !important;
+    }
+
+    .ui.positive.button.gps-set-btn .icon {
+        margin: 0 !important;
+    }
+
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .gps-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .gps-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .gps-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.top.attached.tabular.menu.gps-tabs {
+            padding: 5px !important;
+            border-radius: 14px 14px 0 0 !important;
+        }
+
+        .ui.top.attached.tabular.menu.gps-tabs .item {
+            flex: 1;
+            padding: 10px 8px !important;
+            font-size: 0.72rem !important;
+            justify-content: center;
+            gap: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .ui.top.attached.tabular.menu.gps-tabs .item .icon {
+            font-size: 0.85rem;
+        }
+
+        .ui.bottom.attached.tab.segment.gps-panel {
+            padding: 14px 12px !important;
+            border-radius: 0 0 14px 14px !important;
+        }
+
+        .gps-map {
+            height: 260px !important;
+        }
+
+        .gps-map-wrap {
+            margin-bottom: 12px;
+        }
+
+        .gps-map-badge {
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
+        }
+
+        .gps-meta-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .gps-meta {
+            font-size: 0.75rem;
+            padding: 8px 12px;
+        }
+
+        .ui.button.fluid.positive.gps-request-btn {
+            padding: 13px !important;
+            font-size: 0.82rem !important;
+            min-height: 46px;
+        }
+
+        /* Log table → cards */
+        table.ui.celled.table.gps-log-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.gps-log-table tbody tr.gps-log-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.gps-log-table tbody tr.gps-log-row.active {
+            border-left: 3px solid #00d9ff !important;
+        }
+
+        table.ui.celled.table.gps-log-table tbody td {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.85rem;
+            text-align: right;
+            gap: 12px;
+        }
+
+        table.ui.celled.table.gps-log-table tbody td::before {
+            content: attr(data-label);
+            color: #5a6675;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        table.ui.celled.table.gps-log-table tbody td:first-child::before {
+            display: none;
+        }
+
+        table.ui.celled.table.gps-log-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 4px !important;
+        }
+
+        .gps-view-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* Settings */
+        .gps-settings-card {
+            padding: 20px 16px;
+            border-radius: 14px;
+        }
+
+        .gps-settings-icon {
+            width: 56px;
+            height: 56px;
+        }
+
+        .gps-settings-icon .icon {
+            font-size: 1.5rem !important;
+        }
+
+        .gps-settings-title {
+            font-size: 1rem !important;
+        }
+
+        .gps-settings-desc {
+            font-size: 0.8rem !important;
+        }
+
+        .gps-settings-input-row {
+            flex-direction: column;
+        }
+
+        .gps-interval-input,
+        .ui.dropdown.label.gps-interval-unit,
+        .ui.positive.button.gps-set-btn {
+            width: 100% !important;
+        }
+
+        .ui.dropdown.label.gps-interval-unit {
+            min-width: 0 !important;
+        }
+
+        .ui.positive.button.gps-set-btn {
+            justify-content: center;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .ui.top.attached.tabular.menu.gps-tabs .item {
+            font-size: 0.65rem !important;
+            padding: 9px 4px !important;
+        }
+
+        .ui.top.attached.tabular.menu.gps-tabs .item .icon {
+            font-size: 0.78rem;
+        }
+
+        .gps-map {
+            height: 220px !important;
+        }
+
+        .gps-settings-title {
+            font-size: 0.9rem !important;
+            letter-spacing: 1.2px;
+        }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .gps-map-badge .icon.dot.circle,
+        .gps-settings-icon,
+        .gps-pulse-marker .pulse-ring {
+            animation: none !important;
+        }
+        table.ui.celled.table.gps-log-table tbody tr.gps-log-row {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    /* ============================================
+       Original logic — UNCHANGED
+       ============================================ */
+    $('.menu .item').tab({
+        onVisible: () => {
+            GPS_NOW_MAP.invalidateSize();
+            GPS_LOG_MAP.invalidateSize();
+        }
+    });
+
+    $('.ui.dropdown').dropdown()
+
+    function gpsIntervalToS() {
+        var intMes = $('#intervalMeasure').text();
+        var multiplier = 1;
+        if (intMes === "hours") multiplier = 3600;
+        if (intMes === "minutes") multiplier = 60;
+        return ($('#gpsInterval').val() * multiplier);
+    }
+
+    function updateGPSInterval() {
+        $.post(baseURL + '/GPSPOLL/' + gpsIntervalToS(), function (data) {
+            if (data.error) showNotification('#f03434', data.error)
+            else showNotification('#2ecc71', 'GPS Interval Updated!');
+        });
+    }
+
+    var mapData = JSON.parse('<%- JSON.stringify(sorted) %>');
+
+    // Auto-load the most recent day's trail
+    <% if (Object.keys(sorted).length > 0) { %>
+    loadLogToMap('<%= Object.keys(sorted)[Object.keys(sorted).length -1] %>');
+    <% } %>
+</script>

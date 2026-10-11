@@ -1,0 +1,826 @@
+<div class="ui segment calllog-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="calllog-toolbar">
+        <div class="calllog-toolbar-left">
+            <div class="calllog-title">
+                <i class="icon phone"></i>
+                <span>Call Log</span>
+                <span class="calllog-count" id="calllogCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="calllog-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="calllogSearch" placeholder="Search number..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="calllog-toolbar-right">
+            <button onclick="updateButton(this, '0xCL')" class="ui blue button calllog-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Active filter indicator -->
+    <% if (typeof filter !== 'undefined' && filter) { %>
+    <div class="calllog-filter-active">
+        <i class="icon filter"></i>
+        <span>Filtered by: <strong><%= filter %></strong></span>
+        <a href="?" class="calllog-filter-clear" title="Clear filter">
+            <i class="icon times"></i>
+        </a>
+    </div>
+    <% } %>
+
+    <!-- ============================================
+         TABLE
+         ============================================ -->
+    <div class="calllog-table-wrap">
+        <table class="ui celled table calllog-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Phone Number</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody id="calllogTbody">
+                <% pageData.forEach((callData) => {
+                    let date = new Date(parseInt(callData.date));
+                    let status = "UNKNOWN";
+                    if(callData.type === 1) status = "IN";
+                    if(callData.type === 2) status = "OUT";
+                    if(callData.type === 3) status = "MISSED";
+
+                    let statusClass = "status-unknown";
+                    let statusIcon = "question circle";
+                    if(callData.type === 1) { statusClass = "status-in"; statusIcon = "arrow down"; }
+                    if(callData.type === 2) { statusClass = "status-out"; statusIcon = "arrow up"; }
+                    if(callData.type === 3) { statusClass = "status-missed"; statusIcon = "phone slash"; }
+
+                    // Format duration
+                    let dur = parseInt(callData.duration) || 0;
+                    let durStr;
+                    if (dur < 60) durStr = dur + 's';
+                    else if (dur < 3600) durStr = Math.floor(dur/60) + 'm ' + (dur%60) + 's';
+                    else durStr = Math.floor(dur/3600) + 'h ' + Math.floor((dur%3600)/60) + 'm';
+                %>
+                <tr class="call-row">
+                    <td class="collapsing" data-label="Date" title="<%= date.toLocaleString('en-GB', { timeZone: 'UTC' }) %>">
+                        <div class="call-date">
+                            <i class="icon clock outline"></i>
+                            <span><%= date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                        </div>
+                    </td>
+                    <td data-label="Phone Number">
+                        <a href="?filter=<%= callData.phoneNo %>" class="call-number">
+                            <i class="icon phone volume"></i>
+                            <span><%= callData.phoneNo %></span>
+                        </a>
+                    </td>
+                    <td data-label="Status" class="collapsing">
+                        <span class="status-badge <%= statusClass %>">
+                            <i class="icon <%= statusIcon %>"></i>
+                            <%= status %>
+                        </span>
+                    </td>
+                    <td data-label="Duration" class="collapsing">
+                        <span class="duration-badge">
+                            <i class="icon hourglass half"></i>
+                            <%= durStr %>
+                        </span>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state -->
+        <div class="calllog-empty" id="calllogEmpty" style="display: none;">
+            <i class="icon phone slash"></i>
+            <p>No calls match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       CALL LOG — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.calllog-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .calllog-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .calllog-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .calllog-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .calllog-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .calllog-title .icon.phone {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .calllog-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .calllog-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .calllog-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 300px;
+        min-width: 180px;
+    }
+
+    .calllog-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .calllog-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .calllog-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .calllog-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .calllog-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.calllog-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.calllog-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.calllog-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.calllog-update-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.blue.button.calllog-update-btn:hover .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    .ui.blue.button.calllog-update-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.blue.button.calllog-update-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .ui.blue.button.calllog-update-btn.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+       ACTIVE FILTER INDICATOR
+       ============================================ */
+    .calllog-filter-active {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(124, 58, 237, 0.08));
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        color: #00d9ff;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        animation: filterIn 0.3s ease;
+    }
+
+    .calllog-filter-active .icon.filter {
+        margin: 0 !important;
+        color: #00d9ff !important;
+    }
+
+    .calllog-filter-active strong {
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0.5px;
+    }
+
+    .calllog-filter-clear {
+        margin-left: auto;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(255, 56, 96, 0.15);
+        border: 1px solid rgba(255, 56, 96, 0.3);
+        color: #ff3860 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .calllog-filter-clear:hover {
+        background: rgba(255, 56, 96, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .calllog-filter-clear .icon {
+        margin: 0 !important;
+        font-size: 0.8rem;
+    }
+
+    @keyframes filterIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .calllog-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.calllog-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    /* Sticky header */
+    table.ui.celled.table.calllog-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.calllog-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.calllog-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation + hover */
+    table.ui.celled.table.calllog-table tbody tr.call-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.calllog-table tbody tr.call-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.calllog-table tbody tr.call-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Date cell */
+    .call-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
+        color: #8b98a8;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .call-date .icon.clock {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.call-row:hover .call-date {
+        color: #e6edf3;
+    }
+
+    tr.call-row:hover .call-date .icon.clock {
+        color: #00d9ff !important;
+    }
+
+    /* Phone number link */
+    a.call-number {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #e6edf3 !important;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-weight: 600;
+        font-size: 0.88rem;
+        text-decoration: none !important;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        transition: all 0.2s ease;
+    }
+
+    a.call-number .icon.phone {
+        color: #7c3aed !important;
+        margin: 0 !important;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+    }
+
+    a.call-number:hover {
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.4);
+        background: rgba(0, 217, 255, 0.08);
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+        transform: translateX(2px);
+    }
+
+    a.call-number:hover .icon.phone {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .status-badge .icon {
+        margin: 0 !important;
+        font-size: 0.72rem !important;
+    }
+
+    .status-badge.status-in {
+        background: rgba(0, 255, 157, 0.1);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+        color: #00ff9d;
+    }
+
+    tr.call-row:hover .status-badge.status-in {
+        box-shadow: 0 0 12px rgba(0, 255, 157, 0.3);
+    }
+
+    .status-badge.status-out {
+        background: rgba(0, 217, 255, 0.1);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff;
+    }
+
+    tr.call-row:hover .status-badge.status-out {
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+    }
+
+    .status-badge.status-missed {
+        background: rgba(255, 56, 96, 0.1);
+        border: 1px solid rgba(255, 56, 96, 0.3);
+        color: #ff3860;
+    }
+
+    tr.call-row:hover .status-badge.status-missed {
+        box-shadow: 0 0 12px rgba(255, 56, 96, 0.3);
+    }
+
+    .status-badge.status-unknown {
+        background: rgba(139, 152, 168, 0.1);
+        border: 1px solid rgba(139, 152, 168, 0.3);
+        color: #8b98a8;
+    }
+
+    /* Duration badge */
+    .duration-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px solid rgba(124, 58, 237, 0.25);
+        color: #b79cff;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .duration-badge .icon {
+        margin: 0 !important;
+        font-size: 0.75rem !important;
+        opacity: 0.75;
+    }
+
+    tr.call-row:hover .duration-badge {
+        box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .calllog-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+    }
+
+    .calllog-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .calllog-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.calllog-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .calllog-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .calllog-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .calllog-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .calllog-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .calllog-toolbar-right {
+            width: 100%;
+        }
+
+        .ui.blue.button.calllog-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Table becomes cards */
+        .calllog-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.calllog-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.calllog-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.calllog-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.calllog-table tbody tr.call-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-left: 4px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        /* Status-coded left border */
+        table.ui.celled.table.calllog-table tbody tr.call-row:has(.status-in) {
+            border-left-color: rgba(0, 255, 157, 0.6) !important;
+        }
+
+        table.ui.celled.table.calllog-table tbody tr.call-row:has(.status-out) {
+            border-left-color: rgba(0, 217, 255, 0.6) !important;
+        }
+
+        table.ui.celled.table.calllog-table tbody tr.call-row:has(.status-missed) {
+            border-left-color: rgba(255, 56, 96, 0.6) !important;
+        }
+
+        table.ui.celled.table.calllog-table tbody tr.call-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.calllog-table tbody td {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.82rem;
+            gap: 12px;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        /* Label on left */
+        table.ui.celled.table.calllog-table tbody td::before {
+            content: attr(data-label);
+            color: #5a6675;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        /* First cell (Date) as card header */
+        table.ui.celled.table.calllog-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 4px !important;
+        }
+
+        table.ui.celled.table.calllog-table tbody td:first-child::before {
+            display: none;
+        }
+
+        .call-date {
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        a.call-number {
+            width: 100%;
+            justify-content: flex-start;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .calllog-title { font-size: 0.8rem; }
+        .calllog-title .icon { font-size: 1rem; }
+        .calllog-count { font-size: 0.65rem !important; }
+        .status-badge,
+        .duration-badge { font-size: 0.65rem; padding: 3px 9px; }
+        a.call-number { font-size: 0.82rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.calllog-table tbody tr.call-row {
+            animation: none !important;
+        }
+        .calllog-count {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter
+           ============================================ */
+        var searchInput = document.getElementById('calllogSearch');
+        var tbody = document.getElementById('calllogTbody');
+        var emptyState = document.getElementById('calllogEmpty');
+        var countBadge = document.getElementById('calllogCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.call-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptyState) {
+                    emptyState.style.display = visible === 0 ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>

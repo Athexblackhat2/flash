@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include partials/head.ejs %>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+</head>
+
+<body>
+    <style type="text/css">
+        /* ============================================
+           INDEX / DEVICES LIST - Dark Neon Theme
+           ============================================ */
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                         'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            background-image:
+                radial-gradient(circle at 10% 5%, rgba(124, 58, 237, 0.15), transparent 40%),
+                radial-gradient(circle at 90% 95%, rgba(0, 217, 255, 0.12), transparent 40%);
+            background-attachment: fixed;
+            color: #e6edf3;
+            min-height: 100vh;
+        }
+
+        /* Fix Semantic container width */
+        .ui.container {
+            width: 100% !important;
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 20px 16px 40px !important;
+        }
+
+        /* Main segment (the card container) */
+        .ui.segment {
+            background: rgba(19, 26, 38, 0.75) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 217, 255, 0.15) !important;
+            border-radius: 20px !important;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            padding: 28px 24px !important;
+            margin-top: 8px !important;
+        }
+
+        /* ============================================
+           Section headers (Online / Offline)
+           ============================================ */
+        h3.ui.grey.dividing.header {
+            color: #e6edf3 !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0 0 12px 0 !important;
+            margin: 24px 0 16px !important;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3.ui.grey.dividing.header::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00d9ff;
+            box-shadow: 0 0 12px #00d9ff;
+            flex-shrink: 0;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        /* Second header (Offline) — different color */
+        h3.ui.grey.dividing.header:nth-of-type(2)::before {
+            background: #5a6675;
+            box-shadow: 0 0 12px rgba(90, 102, 117, 0.5);
+            animation: none;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        /* ============================================
+           Table
+           ============================================ */
+        table.ui.celled.table {
+            background: transparent !important;
+            border: 1px solid rgba(34, 48, 71, 0.6) !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            width: 100% !important;
+            margin-bottom: 8px !important;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        table.ui.celled.table thead th {
+            background: rgba(10, 14, 23, 0.6) !important;
+            color: #00d9ff !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 14px 16px !important;
+            border-bottom: 1px solid rgba(34, 48, 71, 0.6) !important;
+            border-left: none !important;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        table.ui.celled.table tbody td {
+            padding: 14px 16px !important;
+            border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+            border-left: none !important;
+            color: #e6edf3 !important;
+            font-size: 0.9rem;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        table.ui.celled.table tbody tr {
+            background: transparent !important;
+            transition: background 0.2s ease;
+        }
+
+        table.ui.celled.table tbody tr:hover {
+            background: rgba(0, 217, 255, 0.05) !important;
+        }
+
+        /* Client ID column - special style */
+        table.ui.celled.table tbody td:first-child {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-weight: 600;
+            color: #7c3aed !important;
+            font-size: 0.85rem;
+        }
+
+        /* Flag icon */
+        table.ui.celled.table td i.flag {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Manage button */
+        table.ui.celled.table .ui.button.blue {
+            background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            color: #fff !important;
+            font-weight: 600 !important;
+            font-size: 0.78rem !important;
+            letter-spacing: 0.5px;
+            padding: 8px 14px !important;
+            text-transform: uppercase;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 0 12px rgba(0, 217, 255, 0.25) !important;
+            white-space: nowrap;
+        }
+
+        table.ui.celled.table .ui.button.blue:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.5) !important;
+        }
+
+        /* Empty state (no clients) */
+        table.ui.celled.table tbody:empty::after {
+            content: 'No devices';
+            display: block;
+            padding: 24px;
+            text-align: center;
+            color: #5a6675;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* ============================================
+           MOBILE — Convert table to cards
+           ============================================ */
+        @media (max-width: 768px) {
+            .ui.container {
+                padding: 12px 10px 32px !important;
+            }
+
+            .ui.segment {
+                padding: 20px 14px !important;
+                border-radius: 16px !important;
+            }
+
+            h3.ui.grey.dividing.header {
+                font-size: 0.9rem !important;
+                letter-spacing: 1.5px;
+                margin: 16px 0 12px !important;
+            }
+
+            /* Hide table header on mobile */
+            table.ui.celled.table thead {
+                display: none;
+            }
+
+            table.ui.celled.table {
+                border: none !important;
+                background: transparent !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+            }
+
+            table.ui.celled.table tbody {
+                display: block;
+            }
+
+            /* Each row becomes a card */
+            table.ui.celled.table tbody tr {
+                display: block;
+                background: rgba(10, 14, 23, 0.6) !important;
+                border: 1px solid rgba(34, 48, 71, 0.7) !important;
+                border-radius: 14px !important;
+                padding: 14px !important;
+                margin-bottom: 12px !important;
+                position: relative;
+                transition: all 0.2s ease;
+            }
+
+            table.ui.celled.table tbody tr:hover {
+                border-color: rgba(0, 217, 255, 0.4) !important;
+                box-shadow: 0 6px 24px rgba(0, 217, 255, 0.12);
+            }
+
+            table.ui.celled.table tbody td {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 0 !important;
+                border: none !important;
+                text-align: right;
+                font-size: 0.85rem;
+                gap: 12px;
+            }
+
+            /* Label on left side via ::before */
+            table.ui.celled.table tbody td::before {
+                content: attr(data-label);
+                color: #5a6675;
+                font-size: 0.7rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                text-align: left;
+                flex-shrink: 0;
+            }
+
+            /* First cell (Client ID) - make it a header of the card */
+            table.ui.celled.table tbody td:first-child {
+                font-size: 0.95rem !important;
+                color: #7c3aed !important;
+                border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 6px !important;
+            }
+
+            /* Manage button - full width */
+            table.ui.celled.table tbody td:last-child {
+                margin-top: 10px;
+                padding-top: 10px !important;
+                border-top: 1px solid rgba(34, 48, 71, 0.5) !important;
+                display: block !important;
+            }
+
+            table.ui.celled.table tbody td:last-child::before {
+                display: none;
+            }
+
+            table.ui.celled.table .ui.button.blue {
+                width: 100%;
+                padding: 12px !important;
+                font-size: 0.85rem !important;
+                display: block;
+                text-align: center;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 400px) {
+            .ui.segment { padding: 16px 12px !important; }
+            h3.ui.grey.dividing.header { font-size: 0.8rem !important; }
+            table.ui.celled.table tbody tr { padding: 12px !important; }
+        }
+    </style>
+
+    <script>
+        gtag('event', 'screen_view', {
+            'screen_name': 'devices',
+            'app_name': 'flash'
+        });
+
+        gtag('event', 'devicecount', {
+            'devicesonline': <%= clientsOnline.length %>,
+            'devicesoffline': <%= clientsOffline.length %>,
+        });
+    </script>
+
+    <div class="ui container">
+        <% include partials/header.ejs %>
+
+        <div class="ui segment">
+
+            <h3 class="ui grey dividing header">Online</h3>
+
+            <table class="ui celled table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>IP</th>
+                        <th>Device</th>
+                        <th>Last Seen</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% clientsOnline.forEach((item) => {
+                       let lsdate = new Date(item.lastSeen);
+                       let flagCss = (item.dynamicData.clientGeo.country !== undefined) ? ('flag ' + item.dynamicData.clientGeo.country).toLowerCase() : 'icon question mark'
+                       let deviceStr = '';
+                       deviceStr += (item.dynamicData.device.manufacture !== undefined) ? item.dynamicData.device.manufacture :  '';
+                       deviceStr += (item.dynamicData.device.model !== undefined) ? ' (' + item.dynamicData.device.model + ')' :  '';
+                       %>
+                    <tr>
+                        <td class="collapsing" data-label="Name"><%= item.clientID %></td>
+                        <td class="collapsing" data-label="Country"><i class="<%= flagCss %>"></i></td>
+                        <td class="collapsing" data-label="IP"><%= item.dynamicData.clientIP %></td>
+                        <td data-label="Device"><%= deviceStr %></td>
+                        <td class="collapsing" data-label="Last Seen"><%= lsdate.toLocaleString('en-GB', { timeZone: 'UTC' }) %></td>
+                        <td class="collapsing">
+                            <a href="/manage/<%= item.clientID %>/info" class="ui button blue">Manage</a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+
+            <h3 class="ui grey dividing header">Offline</h3>
+            <table class="ui celled table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>IP</th>
+                        <th>Device</th>
+                        <th>Last Seen</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% clientsOffline.forEach((item) => {
+                       let lsdate = new Date(item.lastSeen);
+                       let flagCss = (item.dynamicData.clientGeo.country !== undefined) ? ('flag ' + item.dynamicData.clientGeo.country).toLowerCase() : 'icon question mark'
+                       let deviceStr = '';
+                       deviceStr += (item.dynamicData.device.manufacture !== undefined) ? item.dynamicData.device.manufacture :  '';
+                       deviceStr += (item.dynamicData.device.model !== undefined) ? ' (' + item.dynamicData.device.model + ')' :  '';
+                       %>
+                    <tr>
+                        <td class="collapsing" data-label="Name"><%= item.clientID %></td>
+                        <td class="collapsing" data-label="Country"><i class="<%= flagCss %>"></i></td>
+                        <td class="collapsing" data-label="IP"><%= item.dynamicData.clientIP %></td>
+                        <td data-label="Device"><%= deviceStr %></td>
+                        <td class="collapsing" data-label="Last Seen"><%= lsdate.toLocaleString('en-GB', { timeZone: 'UTC' }) %></td>
+                        <td class="collapsing">
+                            <a href="/manage/<%= item.clientID %>/info" class="ui button blue">Manage</a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <% include partials/footer.ejs %>
+</body>
+
+</html>

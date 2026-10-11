@@ -1,0 +1,218 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+    <meta name="description" content="flash Manager - Device Management Dashboard">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>flash Manager</title>
+
+    <!-- Favicon (inline SVG — neon dot) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300d9ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%230a0e17'/%3E%3Ccircle cx='16' cy='16' r='6' fill='url(%23g)'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='url(%23g)' stroke-width='1.5' opacity='0.5'/%3E%3C/svg%3E">
+
+    <!-- Preconnect for fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts: Inter + JetBrains Mono -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+    <!-- Stylesheets (Original order preserved) -->
+    <link rel="stylesheet" href="/css/semantic.min.css" />
+    <link rel="stylesheet" href="/css/snackbar.min.css" />
+    <link rel="stylesheet" href="/css/custom.css" />
+
+    <!-- ============================================
+         GLOBAL COOL EFFECTS - Neon Theme Overlay
+         ============================================ -->
+    <style type="text/css">
+        /* -------- Global Root Variables -------- */
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #131a26;
+            --bg-elevated: #1a2332;
+            --border: #223047;
+            --text: #e6edf3;
+            --text-dim: #8b98a8;
+            --accent: #00d9ff;
+            --accent-2: #7c3aed;
+            --success: #00ff9d;
+            --danger: #ff3860;
+            --warning: #ffb020;
+        }
+
+        /* -------- Smooth scrollbar (global) -------- */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--accent), var(--accent-2));
+            border-radius: 5px;
+            border: 2px solid var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #00e8ff, #8d4af7);
+        }
+
+        /* -------- Page load fade-in -------- */
+        body {
+            animation: pageFadeIn 0.5s ease-out;
+        }
+
+        @keyframes pageFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        /* -------- Selection color -------- */
+        ::selection {
+            background: rgba(0, 217, 255, 0.3);
+            color: #fff;
+        }
+
+        ::-moz-selection {
+            background: rgba(0, 217, 255, 0.3);
+            color: #fff;
+        }
+
+        /* -------- Focus ring (global accessibility) -------- */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* -------- Top loading bar (page navigation) -------- */
+        #topLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 12px var(--accent);
+            z-index: 99999;
+            transition: width 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #topLoader.active {
+            opacity: 1;
+            animation: topLoaderAnim 1.5s ease forwards;
+        }
+
+        @keyframes topLoaderAnim {
+            0%   { width: 0%; }
+            30%  { width: 40%; }
+            60%  { width: 70%; }
+            90%  { width: 90%; }
+            100% { width: 100%; }
+        }
+
+        /* -------- Snackbar override (theme match) -------- */
+        .snackbar-container {
+            background: var(--bg-elevated) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+        }
+
+        /* -------- Reduce motion support -------- */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+
+    <!-- Scripts (Original order preserved) -->
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/semantic.min.js"></script>
+    <script src="/js/snackbar.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W6SP16VJD5"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-W6SP16VJD5', {
+            'custom_map': {
+                'metric1': 'devicesonline',
+                'metric2': 'devicesoffline',
+                'dimension1': 'builduri'
+            }
+        });
+
+        // ============================================
+        // Cool page-load effects
+        // ============================================
+        (function () {
+            // Create top loading bar
+            var topLoader = document.createElement('div');
+            topLoader.id = 'topLoader';
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.appendChild(topLoader);
+            });
+
+            // Show loading bar on any internal link click
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('a');
+                if (!link) return;
+
+                var href = link.getAttribute('href');
+                if (!href) return;
+
+                // Skip: hash anchors, external links, target=_blank, download links, mailto/tel
+                if (href.startsWith('#') ||
+                    href.startsWith('http') ||
+                    href.startsWith('mailto:') ||
+                    href.startsWith('tel:') ||
+                    link.target === '_blank' ||
+                    link.hasAttribute('download')) {
+                    return;
+                }
+
+                topLoader.classList.add('active');
+            });
+
+            // Reset loader on page show (back/forward)
+            window.addEventListener('pageshow', function () {
+                topLoader.classList.remove('active');
+                topLoader.style.width = '0';
+            });
+
+            // ============================================
+            // Console easter egg
+            // ============================================
+            console.log(
+                '%c⚡ flash %c v1.0 ',
+                'background: linear-gradient(90deg, #00d9ff, #7c3aed); color: white; padding: 6px 10px; border-radius: 4px 0 0 4px; font-weight: bold;',
+                'background: #131a26; color: #00d9ff; padding: 6px 10px; border-radius: 0 4px 4px 0; font-weight: 600;'
+            );
+            console.log(
+                '%cMade with ❤ by ATHEX BLACK HAT',
+                'color: #7c3aed; font-weight: 600; font-size: 12px;'
+            );
+
+            // ============================================
+            // Error handler (avoid silent failures)
+            // ============================================
+            window.addEventListener('error', function (e) {
+                console.warn('[flash] JS Error:', e.message);
+            });
+        })();
+    </script>
+</head>

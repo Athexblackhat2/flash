@@ -1,0 +1,1213 @@
+<div class="ui segment mic-page">
+
+    <!-- ============================================
+         RECORDER SECTION
+         ============================================ -->
+    <div class="mic-recorder-card">
+        <div class="mic-recorder-header">
+            <div class="mic-recorder-icon">
+                <i class="icon microphone"></i>
+            </div>
+            <div class="mic-recorder-text">
+                <h3 class="mic-recorder-title">Voice Recorder</h3>
+                <p class="mic-recorder-sub">Record audio from the device microphone</p>
+            </div>
+        </div>
+
+        <div class="mic-input-row">
+            <div class="mic-input-wrap">
+                <i class="icon hourglass half"></i>
+                <input type="number" placeholder="Duration in seconds" min="0" max="120"
+                       id="seconds" autocomplete="off">
+                <span class="mic-input-unit">sec</span>
+            </div>
+            <button onclick="record(this)" class="ui red left labeled icon button mic-record-btn">
+                <i class="microphone icon"></i>
+                <span>Record</span>
+            </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="mic-progress-wrap">
+            <div class="ui attached progress indicating active mic-progress" id="recProg">
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         AUDIO PLAYER
+         ============================================ -->
+    <div class="mic-player-card" id="playerCard">
+        <div class="mic-player-header">
+            <i class="icon volume up"></i>
+            <span id="playerTitle">Now Playing</span>
+            <span class="mic-player-status" id="playerStatus">Ready</span>
+        </div>
+        <audio id="player" controls>
+            <source id="audioSource" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <!-- ============================================
+         RECORDINGS LIST
+         ============================================ -->
+    <div class="mic-list-section">
+
+        <div class="mic-list-toolbar">
+            <div class="mic-list-title">
+                <i class="icon headphones"></i>
+                <span>Recordings</span>
+                <span class="mic-count" id="micCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="mic-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="micSearch" placeholder="Search recordings..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="mic-table-wrap">
+            <table class="ui celled table mic-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="micTbody">
+                    <% pageData.forEach((item) => {
+                        let date = new Date(item.time);
+                        let fileName = item.originalName || 'recording';
+                        let ext = '';
+                        let dotIdx = fileName.lastIndexOf('.');
+                        if (dotIdx > -1 && dotIdx < fileName.length - 1) {
+                            ext = fileName.substring(dotIdx + 1).toLowerCase();
+                        }
+                    %>
+                    <tr class="mic-row" data-path="<%= item.path %>" data-name="<%= fileName %>">
+                        <td class="collapsing" data-label="Time" title="<%= date.toLocaleString('en-GB', { timeZone: 'UTC' }) %>">
+                            <div class="mic-time">
+                                <i class="icon clock outline"></i>
+                                <span><%= date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) %></span>
+                            </div>
+                        </td>
+                        <td data-label="Name">
+                            <div class="mic-file">
+                                <div class="mic-file-icon">
+                                    <i class="icon file audio outline"></i>
+                                </div>
+                                <div class="mic-file-info">
+                                    <span class="mic-file-name" title="<%= fileName %>"><%= fileName %></span>
+                                    <% if (ext) { %>
+                                    <span class="mic-file-ext"><%= ext.toUpperCase() %></span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="collapsing" data-label="Actions">
+                            <div class="mic-actions">
+                                <button onclick="playClip('<%= item.path %>', '<%= fileName %>')" class="mic-action-btn mic-play-btn" title="Play recording">
+                                    <i class="icon play"></i>
+                                    <span>Play</span>
+                                </button>
+                                <a href="<%= item.path %>" download="<%= fileName %>" class="mic-action-btn mic-save-btn" title="Save recording">
+                                    <i class="icon download"></i>
+                                    <span>Save</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+            <!-- Empty states -->
+            <% if (pageData.length === 0) { %>
+            <div class="mic-empty">
+                <i class="icon microphone slash"></i>
+                <p>No recordings yet</p>
+            </div>
+            <% } %>
+
+            <div class="mic-empty" id="micEmptySearch" style="display: none;">
+                <i class="icon search"></i>
+                <p>No recordings match your search</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       MICROPHONE PAGE — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.mic-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+        color: #e6edf3;
+    }
+
+    /* ============================================
+       RECORDER CARD
+       ============================================ */
+    .mic-recorder-card {
+        padding: 20px;
+        margin-bottom: 18px;
+        background: rgba(10, 14, 23, 0.55);
+        border: 1px solid rgba(255, 56, 96, 0.2);
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        animation: cardIn 0.4s ease;
+    }
+
+    .mic-recorder-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at center,
+            rgba(255, 56, 96, 0.08) 0%,
+            transparent 60%
+        );
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .mic-recorder-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .mic-recorder-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(255, 56, 96, 0.2), rgba(255, 56, 96, 0.1));
+        border: 1px solid rgba(255, 56, 96, 0.35);
+        box-shadow: 0 0 20px rgba(255, 56, 96, 0.25);
+        animation: recorderPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes recorderPulse {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(255, 56, 96, 0.25);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 0 35px rgba(255, 56, 96, 0.5);
+            transform: scale(1.03);
+        }
+    }
+
+    .mic-recorder-icon .icon.microphone {
+        color: #ff3860 !important;
+        margin: 0 !important;
+        font-size: 1.4rem !important;
+        filter: drop-shadow(0 0 8px rgba(255, 56, 96, 0.7));
+    }
+
+    .mic-recorder-text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .mic-recorder-title {
+        font-size: 1.05rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3 !important;
+        margin: 0 !important;
+        line-height: 1.2;
+    }
+
+    .mic-recorder-sub {
+        font-size: 0.78rem !important;
+        color: #8b98a8;
+        margin: 0 !important;
+        line-height: 1.4;
+    }
+
+    /* Input row */
+    .mic-input-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 1;
+        flex-wrap: wrap;
+    }
+
+    .mic-input-wrap {
+        flex: 1;
+        min-width: 180px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(10, 14, 23, 0.85);
+        border: 1px solid #223047;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .mic-input-wrap:focus-within {
+        border-color: #ff3860;
+        box-shadow: 0 0 0 3px rgba(255, 56, 96, 0.15);
+    }
+
+    .mic-input-wrap .icon.hourglass {
+        color: #5a6675 !important;
+        margin: 0 0 0 14px !important;
+        font-size: 0.9rem !important;
+        transition: color 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .mic-input-wrap:focus-within .icon.hourglass {
+        color: #ff3860 !important;
+    }
+
+    .mic-input-wrap input {
+        flex: 1;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #e6edf3 !important;
+        padding: 13px 12px !important;
+        font-size: 15px !important;
+        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        min-width: 0;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .mic-input-wrap input::placeholder {
+        color: #5a6675 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Remove number spinners */
+    .mic-input-wrap input::-webkit-outer-spin-button,
+    .mic-input-wrap input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .mic-input-wrap input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .mic-input-unit {
+        color: #5a6675;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 0 14px 0 6px;
+        font-family: 'JetBrains Mono', monospace;
+        flex-shrink: 0;
+    }
+
+    /* Record button */
+    .ui.red.left.labeled.icon.button.mic-record-btn {
+        background: linear-gradient(135deg, #ff3860 0%, #c81e3f 100%) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        padding: 13px 22px !important;
+        min-height: 46px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 22px rgba(255, 56, 96, 0.35) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .ui.red.left.labeled.icon.button.mic-record-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.red.left.labeled.icon.button.mic-record-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(255, 56, 96, 0.55) !important;
+    }
+
+    .ui.red.left.labeled.icon.button.mic-record-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.red.left.labeled.icon.button.mic-record-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.red.left.labeled.icon.button.mic-record-btn.loading {
+        pointer-events: none;
+        opacity: 0.85;
+    }
+
+    /* Progress bar */
+    .mic-progress-wrap {
+        position: relative;
+        z-index: 1;
+    }
+
+    .ui.attached.progress.mic-progress {
+        background: rgba(10, 14, 23, 0.7) !important;
+        border-radius: 10px !important;
+        height: 8px !important;
+        margin: 0 !important;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        overflow: hidden;
+        box-shadow: none !important;
+    }
+
+    .ui.attached.progress.mic-progress .bar {
+        background: linear-gradient(90deg, #ff3860, #7c3aed) !important;
+        border-radius: 10px !important;
+        min-width: 0 !important;
+        box-shadow: 0 0 15px rgba(255, 56, 96, 0.6);
+        transition: width 0.2s linear;
+        position: relative;
+    }
+
+    .ui.attached.progress.mic-progress .bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: progressShine 1.5s linear infinite;
+    }
+
+    @keyframes progressShine {
+        from { transform: translateX(-100%); }
+        to   { transform: translateX(100%); }
+    }
+
+    /* ============================================
+       PLAYER CARD
+       ============================================ */
+    .mic-player-card {
+        padding: 16px 18px;
+        margin-bottom: 20px;
+        background: rgba(10, 14, 23, 0.55);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .mic-player-card.playing {
+        border-color: rgba(0, 217, 255, 0.5);
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.15);
+    }
+
+    .mic-player-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #8b98a8;
+    }
+
+    .mic-player-header .icon.volume.up {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 0.95rem;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.5));
+    }
+
+    #playerTitle {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #e6edf3;
+    }
+
+    .mic-player-status {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        background: rgba(139, 152, 168, 0.1);
+        border: 1px solid rgba(139, 152, 168, 0.3);
+        color: #8b98a8;
+        letter-spacing: 1px;
+        transition: all 0.2s ease;
+    }
+
+    .mic-player-card.playing .mic-player-status {
+        background: rgba(0, 255, 157, 0.1);
+        border-color: rgba(0, 255, 157, 0.35);
+        color: #00ff9d;
+    }
+
+    .mic-player-card audio {
+        width: 100%;
+        height: 40px;
+        outline: none;
+        border-radius: 8px;
+        filter: invert(0.92) hue-rotate(180deg) contrast(0.9);
+    }
+
+    /* ============================================
+       LIST SECTION
+       ============================================ */
+    .mic-list-section {
+        padding: 0;
+    }
+
+    .mic-list-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 16px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .mic-list-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .mic-list-title .icon.headphones {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.1rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .mic-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.7rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .mic-count .icon {
+        font-size: 0.6rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .mic-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .mic-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .mic-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .mic-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .mic-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .mic-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .mic-table-wrap {
+        margin-top: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        overflow: hidden;
+    }
+
+    table.ui.celled.table.mic-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    table.ui.celled.table.mic-table thead th {
+        background: rgba(10, 14, 23, 0.85) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 13px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.mic-table tbody td {
+        padding: 12px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.mic-table tbody tr.mic-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.mic-table tbody tr.mic-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.mic-table tbody tr.mic-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Currently playing row */
+    table.ui.celled.table.mic-table tbody tr.mic-row.now-playing {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.12), rgba(124, 58, 237, 0.08)) !important;
+        border-left: 3px solid #00d9ff !important;
+    }
+
+    /* Time */
+    .mic-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
+        color: #8b98a8;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    .mic-time .icon.clock {
+        color: #5a6675 !important;
+        margin: 0 !important;
+        font-size: 0.85rem;
+        transition: color 0.2s ease;
+    }
+
+    tr.mic-row:hover .mic-time {
+        color: #e6edf3;
+    }
+
+    tr.mic-row:hover .mic-time .icon.clock {
+        color: #00d9ff !important;
+    }
+
+    /* File cell */
+    .mic-file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .mic-file-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, rgba(20, 220, 190, 0.15), rgba(20, 220, 190, 0.08));
+        border: 1px solid rgba(20, 220, 190, 0.35);
+        box-shadow: 0 0 12px rgba(20, 220, 190, 0.15);
+        transition: all 0.25s ease;
+    }
+
+    .mic-file-icon .icon.file.audio {
+        color: #14dcbe !important;
+        margin: 0 !important;
+        font-size: 1.05rem !important;
+        filter: drop-shadow(0 0 6px rgba(20, 220, 190, 0.5));
+    }
+
+    tr.mic-row:hover .mic-file-icon {
+        transform: scale(1.08);
+        box-shadow: 0 0 20px rgba(20, 220, 190, 0.3);
+    }
+
+    .mic-file-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .mic-file-name {
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    tr.mic-row:hover .mic-file-name {
+        color: #fff;
+    }
+
+    .mic-file-ext {
+        display: inline-block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #8b98a8;
+        background: rgba(10, 14, 23, 0.6);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        padding: 1px 6px;
+        border-radius: 4px;
+        align-self: flex-start;
+    }
+
+    /* Actions */
+    .mic-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .mic-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        text-decoration: none !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        border: 1px solid transparent;
+        font-family: inherit;
+        background: none;
+    }
+
+    .mic-action-btn .icon {
+        margin: 0 !important;
+        font-size: 0.78rem;
+    }
+
+    /* Play button */
+    .mic-play-btn {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.3);
+        color: #66e3ff;
+    }
+
+    .mic-play-btn:hover {
+        background: rgba(0, 217, 255, 0.2);
+        border-color: rgba(0, 217, 255, 0.6);
+        color: #a3eeff;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .mic-play-btn:hover .icon {
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.7));
+    }
+
+    /* Save button */
+    .mic-save-btn {
+        background: rgba(0, 255, 157, 0.1);
+        border-color: rgba(0, 255, 157, 0.3);
+        color: #00ff9d;
+    }
+
+    .mic-save-btn:hover {
+        background: rgba(0, 255, 157, 0.2);
+        border-color: rgba(0, 255, 157, 0.6);
+        color: #5cffba;
+        box-shadow: 0 0 15px rgba(0, 255, 157, 0.35);
+        transform: translateY(-1px);
+    }
+
+    .mic-save-btn:hover .icon {
+        animation: downloadBounce 0.5s ease;
+    }
+
+    @keyframes downloadBounce {
+        0%, 100% { transform: translateY(0); }
+        40%      { transform: translateY(2px); }
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .mic-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .mic-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .mic-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.mic-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .mic-recorder-card {
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+        }
+
+        .mic-recorder-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+        .mic-recorder-icon .icon.microphone {
+            font-size: 1.2rem !important;
+        }
+
+        .mic-recorder-title {
+            font-size: 0.9rem !important;
+            letter-spacing: 1.2px;
+        }
+
+        .mic-recorder-sub {
+            font-size: 0.72rem !important;
+        }
+
+        /* Input stack */
+        .mic-input-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mic-input-wrap,
+        .ui.red.left.labeled.icon.button.mic-record-btn {
+            width: 100%;
+        }
+
+        .ui.red.left.labeled.icon.button.mic-record-btn {
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        .mic-player-card {
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .mic-player-header {
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+        }
+
+        .mic-list-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 12px;
+        }
+
+        .mic-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        /* Table → cards */
+        .mic-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.mic-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.mic-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.mic-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.mic-table tbody tr.mic-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.mic-table tbody tr.mic-row.now-playing {
+            border-left: 3px solid #00d9ff !important;
+        }
+
+        table.ui.celled.table.mic-table tbody td {
+            display: block !important;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.85rem;
+            text-align: left;
+            width: 100% !important;
+        }
+
+        table.ui.celled.table.mic-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .mic-file {
+            gap: 12px;
+        }
+
+        .mic-file-icon {
+            width: 42px;
+            height: 42px;
+        }
+
+        .mic-file-name {
+            font-size: 0.9rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* Buttons side by side full width */
+        .mic-actions {
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .mic-action-btn {
+            flex: 1;
+            padding: 10px 12px;
+            justify-content: center;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .mic-recorder-title {
+            font-size: 0.82rem !important;
+        }
+
+        .mic-list-title {
+            font-size: 0.85rem;
+        }
+
+        .mic-file-icon {
+            width: 38px;
+            height: 38px;
+        }
+
+        .mic-action-btn {
+            font-size: 0.7rem;
+            padding: 9px 8px;
+        }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .mic-recorder-icon,
+        .ui.attached.progress.mic-progress .bar::after,
+        .mic-count {
+            animation: none !important;
+        }
+        table.ui.celled.table.mic-table tbody tr.mic-row {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    /* ============================================
+       playClip — updated with filename + playing state
+       ============================================ */
+    function playClip(path, name) {
+        var player = document.getElementById('player');
+        var playerCard = document.getElementById('playerCard');
+        var playerTitle = document.getElementById('playerTitle');
+        var playerStatus = document.getElementById('playerStatus');
+
+        $("#audioSource").attr("src", path);
+        player.load();
+
+        if (playerTitle && name) playerTitle.textContent = name;
+
+        var playPromise = player.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                if (playerCard) playerCard.classList.add('playing');
+                if (playerStatus) playerStatus.textContent = 'Playing';
+            }).catch(error => {
+                if (playerStatus) playerStatus.textContent = 'Error';
+            });
+        }
+
+        // Highlight the row that's playing
+        document.querySelectorAll('tr.mic-row').forEach(function (r) {
+            r.classList.remove('now-playing');
+        });
+        var activeRow = document.querySelector('tr.mic-row[data-path="' + path + '"]');
+        if (activeRow) activeRow.classList.add('now-playing');
+    }
+
+    /* ============================================
+       Audio player event listeners (playing/ended state)
+       ============================================ */
+    (function () {
+        var player = document.getElementById('player');
+        var playerCard = document.getElementById('playerCard');
+        var playerStatus = document.getElementById('playerStatus');
+
+        if (player && playerCard && playerStatus) {
+            player.addEventListener('play', function () {
+                playerCard.classList.add('playing');
+                playerStatus.textContent = 'Playing';
+            });
+            player.addEventListener('pause', function () {
+                playerCard.classList.remove('playing');
+                playerStatus.textContent = 'Paused';
+            });
+            player.addEventListener('ended', function () {
+                playerCard.classList.remove('playing');
+                playerStatus.textContent = 'Ready';
+                document.querySelectorAll('tr.mic-row').forEach(function (r) {
+                    r.classList.remove('now-playing');
+                });
+            });
+        }
+    })();
+
+    /* ============================================
+       record — original logic, UNCHANGED
+       ============================================ */
+    function record(element) {
+        $(element).addClass('loading')
+        let sec = $('#seconds').val();
+        sendCommand('0xMI', { sec }, (error, message) => {
+            if (error) {
+                setTimeout(() => {
+                    showNotification('#f03434', error)
+                    $(element).removeClass('loading')
+                }, 300)
+            } else {
+                setTimeout(() => {
+                    $(element).removeClass('loading');
+
+                    let timeLeft = ((parseInt(sec) + 15) * 1000);
+                    let timeItsGonnaTake = (parseInt(sec) + 10);
+
+                    if (message === 'Requested') {
+                        showNotification('#2ecc71', 'Now Recording, Check back in ' + timeItsGonnaTake + ' ish Seconds for the result!');
+                        let cdInterval = setInterval(() => {
+                            timeLeft = timeLeft - 100;
+                            let percent = (((timeItsGonnaTake * 1000) * 100) / timeLeft) - 100;
+                            $('#recProg').progress({ percent });
+                            if (percent > 100) window.location = window.location;
+                        }, 100)
+                    } else showNotification('#2ecc71', message);
+                }, 300)
+            }
+        });
+    }
+
+    /* ============================================
+       Live search filter
+       ============================================ */
+    (function () {
+        var searchInput = document.getElementById('micSearch');
+        var tbody = document.getElementById('micTbody');
+        var emptySearch = document.getElementById('micEmptySearch');
+        var countBadge = document.getElementById('micCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.mic-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>
+
+</div>

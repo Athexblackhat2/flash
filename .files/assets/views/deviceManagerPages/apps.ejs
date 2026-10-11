@@ -1,0 +1,632 @@
+<div class="ui segment apps-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="apps-toolbar">
+        <div class="apps-toolbar-left">
+            <div class="apps-title">
+                <i class="icon google play"></i>
+                <span>Installed Apps</span>
+                <span class="apps-count" id="appsCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="apps-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="appsSearch" placeholder="Search apps..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="apps-toolbar-right">
+            <button onclick="updateButton(this, '0xIN')" class="ui blue button apps-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TABLE
+         ============================================ -->
+    <div class="apps-table-wrap">
+        <table class="ui celled table apps-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Package</th>
+                    <th>Version</th>
+                </tr>
+            </thead>
+            <tbody id="appsTbody">
+                <% pageData.forEach((app) => { %>
+                <tr class="app-row">
+                    <td title="<%= app.appName %>" data-label="Name">
+                        <div class="app-name-cell">
+                            <i class="icon cube"></i>
+                            <span><%= app.appName.substring(0,24) %></span>
+                        </div>
+                    </td>
+                    <td title="<%= app.packageName %>" data-label="Package">
+                        <code class="pkg-code"><%= app.packageName %></code>
+                    </td>
+                    <td title="<%= app.versionName %>" data-label="Version">
+                        <span class="ver-badge"><%= app.versionName.substring(0,12) %></span>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state -->
+        <div class="apps-empty" id="appsEmpty" style="display: none;">
+            <i class="icon search"></i>
+            <p>No apps match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       APPS PAGE — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.apps-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .apps-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .apps-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .apps-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .apps-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .apps-title .icon {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .apps-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .apps-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .apps-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 300px;
+        min-width: 180px;
+    }
+
+    .apps-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .apps-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .apps-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .apps-search-wrap input:focus ~ .icon.search,
+    .apps-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .apps-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.apps-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.apps-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.apps-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.apps-update-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.blue.button.apps-update-btn:hover .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    .ui.blue.button.apps-update-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.blue.button.apps-update-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .ui.blue.button.apps-update-btn.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .apps-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.apps-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    /* Sticky header */
+    table.ui.celled.table.apps-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.apps-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.apps-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation + hover */
+    table.ui.celled.table.apps-table tbody tr.app-row {
+        transition: background 0.2s ease, transform 0.15s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.apps-table tbody tr.app-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from {
+            opacity: 0;
+            transform: translateX(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    table.ui.celled.table.apps-table tbody tr.app-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    table.ui.celled.table.apps-table tbody tr.app-row:hover td {
+        color: #fff !important;
+    }
+
+    /* App name cell */
+    .app-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+
+    .app-name-cell .icon.cube {
+        color: #7c3aed !important;
+        margin: 0 !important;
+        font-size: 1rem;
+        filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.5));
+        flex-shrink: 0;
+    }
+
+    /* Package code */
+    code.pkg-code {
+        font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+        font-size: 0.78rem !important;
+        color: #8b98a8 !important;
+        background: rgba(10, 14, 23, 0.6);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    tr.app-row:hover code.pkg-code {
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.3);
+        background: rgba(0, 217, 255, 0.08);
+    }
+
+    /* Version badge */
+    .ver-badge {
+        display: inline-block;
+        background: rgba(0, 255, 157, 0.1);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+        color: #00ff9d;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        transition: all 0.2s ease;
+    }
+
+    tr.app-row:hover .ver-badge {
+        box-shadow: 0 0 12px rgba(0, 255, 157, 0.3);
+        transform: translateY(-1px);
+    }
+
+    /* ============================================
+       EMPTY STATE
+       ============================================ */
+    .apps-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+    }
+
+    .apps-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .apps-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.apps-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .apps-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .apps-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .apps-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .apps-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .apps-toolbar-right {
+            width: 100%;
+        }
+
+        .ui.blue.button.apps-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Table becomes blocks */
+        .apps-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.apps-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.apps-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.apps-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.apps-table tbody tr.app-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.apps-table tbody tr.app-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+            transform: none;
+        }
+
+        table.ui.celled.table.apps-table tbody td {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.82rem;
+            gap: 12px;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        /* Label on left */
+        table.ui.celled.table.apps-table tbody td::before {
+            content: attr(data-label);
+            color: #5a6675;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        /* First cell (Name) as card title */
+        table.ui.celled.table.apps-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 4px !important;
+        }
+
+        table.ui.celled.table.apps-table tbody td:first-child::before {
+            display: none;
+        }
+
+        .app-name-cell {
+            font-size: 0.9rem;
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        code.pkg-code {
+            max-width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .apps-title { font-size: 0.8rem; }
+        .apps-title .icon { font-size: 1rem; }
+        .apps-count { font-size: 0.65rem !important; }
+        code.pkg-code { font-size: 0.72rem !important; }
+        .ver-badge { font-size: 0.68rem; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.apps-table tbody tr.app-row {
+            animation: none !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter
+           ============================================ */
+        var searchInput = document.getElementById('appsSearch');
+        var tbody = document.getElementById('appsTbody');
+        var emptyState = document.getElementById('appsEmpty');
+        var countBadge = document.getElementById('appsCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.app-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptyState) {
+                    emptyState.style.display = visible === 0 ? 'block' : 'none';
+                }
+
+                // Update count badge
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>

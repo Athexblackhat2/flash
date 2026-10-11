@@ -1,0 +1,750 @@
+<div class="ui segment contacts-page">
+
+    <!-- ============================================
+         TOP ACTION BAR
+         ============================================ -->
+    <div class="contacts-toolbar">
+        <div class="contacts-toolbar-left">
+            <div class="contacts-title">
+                <i class="icon address book"></i>
+                <span>Contacts</span>
+                <span class="contacts-count" id="contactsCount">
+                    <i class="icon circle notch"></i>
+                    <%= pageData.length %>
+                </span>
+            </div>
+            <div class="contacts-search-wrap">
+                <i class="icon search"></i>
+                <input type="text" id="contactsSearch" placeholder="Search name or number..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="contacts-toolbar-right">
+            <button onclick="updateButton(this, '0xCO')" class="ui blue button contacts-update-btn">
+                <i class="icon sync"></i>
+                <span>Update</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TABLE
+         ============================================ -->
+    <div class="contacts-table-wrap">
+        <table class="ui celled table contacts-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th colspan="2">Logs</th>
+                </tr>
+            </thead>
+            <tbody id="contactsTbody">
+                <% pageData.forEach((contact) => {
+                    let name = contact.name || 'Unknown';
+                    let phone = contact.phoneNo || '';
+                    // Generate initials from name
+                    let initials = name.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase();
+                    if (!initials) initials = '#';
+                    // Deterministic hue from phone number for avatar gradient variety
+                    let hue = 0;
+                    for (let i = 0; i < phone.length; i++) hue = (hue + phone.charCodeAt(i)) % 360;
+                %>
+                <tr class="contact-row">
+                    <td data-label="Name">
+                        <div class="contact-name-cell">
+                            <div class="contact-avatar" style="--hue: <%= hue %>;">
+                                <span><%= initials %></span>
+                            </div>
+                            <span class="contact-name"><%= name %></span>
+                        </div>
+                    </td>
+                    <td data-label="Phone Number">
+                        <a href="tel:<%= phone %>" class="contact-phone" title="Call <%= phone %>">
+                            <i class="icon phone volume"></i>
+                            <span><%= phone %></span>
+                        </a>
+                    </td>
+                    <td class="collapsing" data-label="Call Log">
+                        <a href="<%= baseURL %>/calls?filter=<%= phone %>" class="log-link log-call">
+                            <i class="icon phone"></i>
+                            <span>Call Log</span>
+                        </a>
+                    </td>
+                    <td class="collapsing" data-label="SMS Log">
+                        <a href="<%= baseURL %>/sms?filter=<%= phone %>" class="log-link log-sms">
+                            <i class="icon comments"></i>
+                            <span>SMS Log</span>
+                        </a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <!-- Empty state (no data at all) -->
+        <% if (pageData.length === 0) { %>
+        <div class="contacts-empty">
+            <i class="icon address book outline"></i>
+            <p>No contacts found</p>
+        </div>
+        <% } %>
+
+        <!-- Empty state (search) -->
+        <div class="contacts-empty" id="contactsEmptySearch" style="display: none;">
+            <i class="icon search"></i>
+            <p>No contacts match your search</p>
+        </div>
+    </div>
+
+</div>
+
+<style type="text/css">
+    /* ============================================
+       CONTACTS — Dark Neon Theme
+       ============================================ */
+
+    .ui.segment.contacts-page {
+        background: rgba(19, 26, 38, 0.75) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 217, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.03),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        padding: 22px !important;
+    }
+
+    /* ============================================
+       TOOLBAR
+       ============================================ */
+    .contacts-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 18px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.12);
+    }
+
+    .contacts-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .contacts-toolbar-right {
+        flex-shrink: 0;
+    }
+
+    /* Title */
+    .contacts-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #e6edf3;
+        white-space: nowrap;
+    }
+
+    .contacts-title .icon.address.book {
+        color: #00d9ff !important;
+        margin: 0 !important;
+        font-size: 1.15rem;
+        filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.5));
+    }
+
+    .contacts-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(0, 217, 255, 0.12);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.15);
+        animation: countPulse 3s ease-in-out infinite;
+    }
+
+    .contacts-count .icon {
+        font-size: 0.65rem !important;
+        filter: none !important;
+        animation: spin 4s linear infinite;
+    }
+
+    @keyframes countPulse {
+        0%, 100% { box-shadow: 0 0 12px rgba(0, 217, 255, 0.15); }
+        50%      { box-shadow: 0 0 20px rgba(0, 217, 255, 0.35); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Search */
+    .contacts-search-wrap {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+        min-width: 180px;
+    }
+
+    .contacts-search-wrap .icon.search {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #5a6675 !important;
+        font-size: 0.9rem !important;
+        margin: 0 !important;
+        pointer-events: none;
+        transition: color 0.2s ease;
+    }
+
+    .contacts-search-wrap input {
+        width: 100%;
+        background: rgba(10, 14, 23, 0.7) !important;
+        border: 1px solid #223047 !important;
+        border-radius: 10px !important;
+        color: #e6edf3 !important;
+        padding: 10px 14px 10px 36px !important;
+        font-size: 0.88rem !important;
+        font-family: inherit !important;
+        outline: none !important;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .contacts-search-wrap input:focus {
+        border-color: #00d9ff !important;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+        background: rgba(10, 14, 23, 0.95) !important;
+    }
+
+    .contacts-search-wrap:focus-within .icon.search {
+        color: #00d9ff !important;
+    }
+
+    .contacts-search-wrap input::placeholder {
+        color: #5a6675 !important;
+    }
+
+    /* Update button */
+    .ui.blue.button.contacts-update-btn {
+        background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 11px 20px !important;
+        min-height: 42px;
+        transition: all 0.25s ease !important;
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3) !important;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .ui.blue.button.contacts-update-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .ui.blue.button.contacts-update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(0, 217, 255, 0.55) !important;
+    }
+
+    .ui.blue.button.contacts-update-btn:hover::after {
+        left: 100%;
+    }
+
+    .ui.blue.button.contacts-update-btn:hover .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    .ui.blue.button.contacts-update-btn .icon {
+        margin: 0 !important;
+    }
+
+    .ui.blue.button.contacts-update-btn.loading {
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
+    .ui.blue.button.contacts-update-btn.loading .icon {
+        animation: spin 1s linear infinite;
+    }
+
+    /* ============================================
+       TABLE
+       ============================================ */
+    .contacts-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 14px;
+        border: 1px solid rgba(34, 48, 71, 0.6);
+    }
+
+    table.ui.celled.table.contacts-table {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    /* Sticky header */
+    table.ui.celled.table.contacts-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+
+    table.ui.celled.table.contacts-table thead th {
+        background: rgba(10, 14, 23, 0.95) !important;
+        backdrop-filter: blur(10px);
+        color: #00d9ff !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 14px 18px !important;
+        border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+        border-left: none !important;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    table.ui.celled.table.contacts-table tbody td {
+        padding: 14px 18px !important;
+        border-top: 1px solid rgba(34, 48, 71, 0.4) !important;
+        border-left: none !important;
+        color: #e6edf3 !important;
+        font-size: 0.88rem;
+        vertical-align: middle;
+        word-break: break-word;
+    }
+
+    /* Row animation */
+    table.ui.celled.table.contacts-table tbody tr.contact-row {
+        transition: background 0.2s ease;
+        animation: rowIn 0.3s ease backwards;
+    }
+
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(1)  { animation-delay: 0.00s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(2)  { animation-delay: 0.02s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(3)  { animation-delay: 0.04s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(4)  { animation-delay: 0.06s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(5)  { animation-delay: 0.08s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(6)  { animation-delay: 0.10s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(7)  { animation-delay: 0.12s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(8)  { animation-delay: 0.14s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(9)  { animation-delay: 0.16s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(10) { animation-delay: 0.18s; }
+    table.ui.celled.table.contacts-table tbody tr.contact-row:nth-child(n+11) { animation-delay: 0.2s; }
+
+    @keyframes rowIn {
+        from { opacity: 0; transform: translateX(-6px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    table.ui.celled.table.contacts-table tbody tr.contact-row:hover {
+        background: rgba(0, 217, 255, 0.06) !important;
+    }
+
+    /* Name cell with avatar */
+    .contact-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    /* Avatar with initials */
+    .contact-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        color: #fff;
+        background: linear-gradient(
+            135deg,
+            hsl(var(--hue, 200), 70%, 55%) 0%,
+            hsl(calc(var(--hue, 200) + 40), 70%, 45%) 100%
+        );
+        box-shadow:
+            0 0 0 2px rgba(10, 14, 23, 0.8),
+            0 0 12px hsla(var(--hue, 200), 80%, 55%, 0.4);
+        transition: all 0.25s ease;
+    }
+
+    tr.contact-row:hover .contact-avatar {
+        transform: scale(1.08);
+        box-shadow:
+            0 0 0 2px rgba(10, 14, 23, 0.8),
+            0 0 20px hsla(var(--hue, 200), 90%, 60%, 0.7);
+    }
+
+    .contact-name {
+        font-weight: 600;
+        color: #e6edf3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+    tr.contact-row:hover .contact-name {
+        color: #fff;
+    }
+
+    /* Phone number link */
+    a.contact-phone {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #e6edf3 !important;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none !important;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(10, 14, 23, 0.5);
+        border: 1px solid rgba(34, 48, 71, 0.6);
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    a.contact-phone .icon.phone {
+        color: #7c3aed !important;
+        margin: 0 !important;
+        font-size: 0.78rem;
+        transition: all 0.2s ease;
+    }
+
+    a.contact-phone:hover {
+        color: #00d9ff !important;
+        border-color: rgba(0, 217, 255, 0.4);
+        background: rgba(0, 217, 255, 0.08);
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+        transform: translateX(2px);
+    }
+
+    a.contact-phone:hover .icon.phone {
+        color: #00d9ff !important;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.6));
+    }
+
+    /* Log links */
+    a.log-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        border: 1px solid transparent;
+    }
+
+    a.log-link .icon {
+        margin: 0 !important;
+        font-size: 0.75rem;
+    }
+
+    /* Call log link — purple */
+    a.log-link.log-call {
+        background: rgba(124, 58, 237, 0.1);
+        border-color: rgba(124, 58, 237, 0.3);
+        color: #b79cff;
+    }
+
+    a.log-link.log-call:hover {
+        background: rgba(124, 58, 237, 0.2);
+        border-color: rgba(124, 58, 237, 0.6);
+        color: #d9c7ff;
+        box-shadow: 0 0 15px rgba(124, 58, 237, 0.35);
+        transform: translateY(-1px);
+    }
+
+    /* SMS log link — cyan */
+    a.log-link.log-sms {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: rgba(0, 217, 255, 0.3);
+        color: #66e3ff;
+    }
+
+    a.log-link.log-sms:hover {
+        background: rgba(0, 217, 255, 0.2);
+        border-color: rgba(0, 217, 255, 0.6);
+        color: #a3eeff;
+        box-shadow: 0 0 15px rgba(0, 217, 255, 0.35);
+        transform: translateY(-1px);
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .contacts-empty {
+        padding: 40px 20px;
+        text-align: center;
+        color: #5a6675;
+        border-top: 1px solid rgba(34, 48, 71, 0.4);
+    }
+
+    .contacts-empty .icon {
+        font-size: 2.5rem !important;
+        margin: 0 0 12px 0 !important;
+        opacity: 0.4;
+        display: block;
+    }
+
+    .contacts-empty p {
+        margin: 0;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+    }
+
+    /* ============================================
+       MOBILE — Table → Cards
+       ============================================ */
+    @media (max-width: 768px) {
+        .ui.segment.contacts-page {
+            padding: 16px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .contacts-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding-bottom: 14px;
+        }
+
+        .contacts-toolbar-left {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .contacts-title {
+            font-size: 0.9rem;
+            letter-spacing: 1.2px;
+        }
+
+        .contacts-search-wrap {
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .contacts-toolbar-right {
+            width: 100%;
+        }
+
+        .ui.blue.button.contacts-update-btn {
+            width: 100%;
+            justify-content: center;
+            padding: 12px !important;
+        }
+
+        /* Table becomes cards */
+        .contacts-table-wrap {
+            border: none;
+            overflow: visible;
+        }
+
+        table.ui.celled.table.contacts-table {
+            display: block;
+            border: none !important;
+        }
+
+        table.ui.celled.table.contacts-table thead {
+            display: none;
+        }
+
+        table.ui.celled.table.contacts-table tbody {
+            display: block;
+        }
+
+        table.ui.celled.table.contacts-table tbody tr.contact-row {
+            display: block;
+            background: rgba(10, 14, 23, 0.6) !important;
+            border: 1px solid rgba(34, 48, 71, 0.7) !important;
+            border-radius: 12px !important;
+            padding: 14px !important;
+            margin-bottom: 12px !important;
+            animation: none;
+        }
+
+        table.ui.celled.table.contacts-table tbody tr.contact-row:hover {
+            border-color: rgba(0, 217, 255, 0.4) !important;
+        }
+
+        table.ui.celled.table.contacts-table tbody td {
+            display: block !important;
+            padding: 6px 0 !important;
+            border: none !important;
+            font-size: 0.85rem;
+            text-align: left;
+            width: 100% !important;
+        }
+
+        /* First cell (Name) — card header */
+        table.ui.celled.table.contacts-table tbody td:first-child {
+            border-bottom: 1px solid rgba(34, 48, 71, 0.5) !important;
+            padding-bottom: 12px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .contact-name-cell {
+            gap: 14px;
+        }
+
+        .contact-avatar {
+            width: 44px;
+            height: 44px;
+            font-size: 0.9rem;
+        }
+
+        .contact-name {
+            font-size: 0.95rem;
+            white-space: normal;
+            font-weight: 700;
+        }
+
+        a.contact-phone {
+            width: 100%;
+            justify-content: flex-start;
+            font-size: 0.88rem;
+            padding: 10px 12px;
+            margin: 4px 0;
+        }
+
+        /* Log links row (side by side) */
+        table.ui.celled.table.contacts-table tbody td:nth-last-child(2),
+        table.ui.celled.table.contacts-table tbody td:last-child {
+            display: inline-block !important;
+            width: calc(50% - 4px) !important;
+            padding: 4px 2px !important;
+            margin-top: 8px;
+        }
+
+        a.log-link {
+            width: 100%;
+            justify-content: center;
+            padding: 10px 8px;
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .contacts-title { font-size: 0.8rem; }
+        .contacts-title .icon { font-size: 1rem; }
+        .contacts-count { font-size: 0.65rem !important; }
+        .contact-avatar { width: 38px; height: 38px; font-size: 0.8rem; }
+        .contact-name { font-size: 0.88rem; }
+        a.contact-phone { font-size: 0.82rem; padding: 8px 10px; }
+        a.log-link { font-size: 0.7rem; padding: 9px 6px; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        table.ui.celled.table.contacts-table tbody tr.contact-row {
+            animation: none !important;
+        }
+        .contacts-count {
+            animation: none !important;
+        }
+        tr.contact-row:hover .contact-avatar {
+            transform: none;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        /* ============================================
+           Live search filter
+           ============================================ */
+        var searchInput = document.getElementById('contactsSearch');
+        var tbody = document.getElementById('contactsTbody');
+        var emptySearch = document.getElementById('contactsEmptySearch');
+        var countBadge = document.getElementById('contactsCount');
+
+        if (searchInput && tbody) {
+            searchInput.addEventListener('input', function () {
+                var q = this.value.toLowerCase().trim();
+                var rows = tbody.querySelectorAll('tr.contact-row');
+                var visible = 0;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    if (!q || text.indexOf(q) !== -1) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (emptySearch) {
+                    emptySearch.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+                }
+
+                if (countBadge) {
+                    var icon = countBadge.querySelector('i.icon');
+                    var iconHTML = icon ? icon.outerHTML : '';
+                    countBadge.innerHTML = iconHTML + ' ' + visible;
+                }
+            });
+        }
+    })();
+</script>

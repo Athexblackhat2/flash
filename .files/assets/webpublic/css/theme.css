@@ -1,0 +1,283 @@
+/* ============================================
+   DARK NEON THEME - flash Dashboard Override
+   ============================================ */
+
+:root {
+    --bg-dark: #0a0e17;
+    --bg-card: #131a26;
+    --bg-elevated: #1a2332;
+    --border: #223047;
+    --text: #e6edf3;
+    --text-dim: #8b98a8;
+    --accent: #00d9ff;
+    --accent-2: #7c3aed;
+    --success: #00ff9d;
+    --danger: #ff3860;
+    --warning: #ffb020;
+    --glow: 0 0 20px rgba(0, 217, 255, 0.35);
+}
+
+/* Global */
+body {
+    background: var(--bg-dark) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+    background-image:
+        radial-gradient(circle at 15% 20%, rgba(124, 58, 237, 0.15), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(0, 217, 255, 0.12), transparent 40%) !important;
+    background-attachment: fixed !important;
+}
+
+/* ==== Menu / Topbar ==== */
+.ui.menu {
+    background: rgba(19, 26, 38, 0.95) !important;
+    border: 1px solid var(--border) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+.ui.menu .item {
+    color: var(--text-dim) !important;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    margin: 4px 2px;
+}
+
+.ui.menu .item:hover {
+    color: var(--accent) !important;
+    background: rgba(0, 217, 255, 0.08) !important;
+}
+
+.ui.menu .item.active {
+    color: var(--accent) !important;
+    background: rgba(0, 217, 255, 0.15) !important;
+    box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.ui.menu .header.item {
+    color: var(--text) !important;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: var(--glow);
+}
+
+/* ==== Buttons ==== */
+.ui.button {
+    background: var(--bg-elevated) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease !important;
+}
+
+.ui.button:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent) !important;
+    box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2) !important;
+}
+
+.ui.primary.button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: var(--glow);
+}
+
+.ui.primary.button:hover {
+    box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5) !important;
+}
+
+.ui.red.button, .ui.negative.button {
+    background: linear-gradient(135deg, #ff3860, #c81e3f) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.ui.green.button, .ui.positive.button {
+    background: linear-gradient(135deg, #00ff9d, #00b377) !important;
+    border: none !important;
+    color: #003a22 !important;
+}
+
+/* ==== Cards / Segments ==== */
+.ui.segment,
+.ui.card,
+.ui.message {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+.ui.card:hover,
+.ui.segment.raised:hover {
+    border-color: rgba(0, 217, 255, 0.4) !important;
+    box-shadow: 0 8px 30px rgba(0, 217, 255, 0.15) !important;
+}
+
+/* ==== Inputs ==== */
+.ui.input > input,
+.ui.form input,
+.ui.form textarea,
+.ui.form select {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease;
+}
+
+.ui.input > input:focus,
+.ui.form input:focus,
+.ui.form textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+}
+
+/* ==== Tables ==== */
+.ui.table {
+    background: var(--bg-card) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.ui.table thead th {
+    background: var(--bg-elevated) !important;
+    color: var(--accent) !important;
+    border-bottom: 2px solid var(--border) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem !important;
+}
+
+.ui.table td {
+    border-top: 1px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
+.ui.table tbody tr:hover {
+    background: rgba(0, 217, 255, 0.05) !important;
+}
+
+/* ==== Labels / Tags ==== */
+.ui.label {
+    background: var(--bg-elevated) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 20px !important;
+}
+
+.ui.red.label { background: var(--danger) !important; color: #fff !important; }
+.ui.green.label { background: var(--success) !important; color: #003a22 !important; }
+.ui.blue.label { background: var(--accent) !important; color: #002233 !important; }
+
+/* ==== Logs (existing class) ==== */
+.logs {
+    background: #0d1117 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 0 0 40px rgba(0, 217, 255, 0.05) !important;
+    font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+}
+
+.logs .logitm.INFO { color: var(--accent) !important; }
+.logs .logitm.SUCCESS { color: var(--success) !important; }
+.logs .logitm.ERROR { color: var(--danger) !important; }
+.logs .logitm.ALERT { color: var(--warning) !important; }
+
+/* ==== Headers ==== */
+h1, h2, h3, h4, h5, .ui.header {
+    color: var(--text) !important;
+}
+
+.ui.header .sub.header {
+    color: var(--text-dim) !important;
+}
+
+/* ==== Modals ==== */
+.ui.modal {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7) !important;
+}
+
+.ui.modal > .header {
+    background: var(--bg-elevated) !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 16px 16px 0 0 !important;
+}
+
+.ui.modal > .content,
+.ui.modal > .actions {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+/* ==== Dropdowns ==== */
+.ui.dropdown .menu {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+.ui.dropdown .menu > .item {
+    color: var(--text) !important;
+}
+
+.ui.dropdown .menu > .item:hover {
+    background: rgba(0, 217, 255, 0.1) !important;
+    color: var(--accent) !important;
+}
+
+/* ==== Leaflet map dark ==== */
+.leaflet-container {
+    background: #0d1117 !important;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.leaflet-tile {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+
+/* ==== Snackbar ==== */
+.snackbar-container {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ==== Scrollbar ==== */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ==== Animations ==== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ui.card, .ui.segment, .ui.message {
+    animation: fadeInUp 0.4s ease backwards;
+}
+
+/* ==== Sidebar ==== */
+.ui.sidebar {
+    background: var(--bg-card) !important;
+    border-right: 1px solid var(--border) !important;
+}

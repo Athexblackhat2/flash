@@ -1,0 +1,287 @@
+<div class="cool-footer">
+    <div class="footer-line"></div>
+
+    <div class="footer-content">
+        <span class="footer-badge">
+            <span class="badge-dot"></span>
+            <span class="badge-text">Made with</span>
+            <span class="heart">
+                <i class="heart-icon"></i>
+            </span>
+            <span class="badge-text">By</span>
+            <a href="" target="_blank" class="footer-link">
+                <span class="link-text">ATHEX BLACK HAT</span>
+                <span class="link-glow"></span>
+            </a>
+        </span>
+    </div>
+
+    <div class="footer-line"></div>
+</div>
+
+<style type="text/css">
+    /* ============================================
+       COOL FOOTER — ATHEX BLACK HAT
+       ============================================ */
+
+    .cool-footer {
+        text-align: center;
+        margin: 60px auto 20px;
+        padding: 0 16px;
+        max-width: 900px;
+        user-select: none;
+    }
+
+    /* Decorative top & bottom lines */
+    .footer-line {
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(0, 217, 255, 0.15) 20%,
+            rgba(0, 217, 255, 0.6) 50%,
+            rgba(124, 58, 237, 0.6) 80%,
+            transparent 100%
+        );
+        position: relative;
+        overflow: hidden;
+        margin: 14px 0;
+    }
+
+    .footer-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -30%;
+        width: 30%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            #00d9ff,
+            #7c3aed,
+            transparent
+        );
+        filter: blur(1px);
+        animation: shimmer 4s ease-in-out infinite;
+        box-shadow: 0 0 12px rgba(0, 217, 255, 0.8);
+    }
+
+    @keyframes shimmer {
+        0%   { left: -30%; }
+        50%  { left: 100%; }
+        100% { left: 130%; }
+    }
+
+    /* Badge container (glass pill) */
+    .footer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 24px;
+        background: rgba(19, 26, 38, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 50px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                     'Segoe UI', Roboto, sans-serif;
+        font-size: 0.85rem;
+        color: #8b98a8;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.35),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .footer-badge:hover {
+        border-color: rgba(0, 217, 255, 0.45);
+        box-shadow:
+            0 6px 30px rgba(0, 217, 255, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
+    }
+
+    /* Live status dot */
+    .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #00ff9d;
+        box-shadow: 0 0 10px #00ff9d;
+        animation: pulseDot 1.6s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%      { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Text label */
+    .badge-text {
+        color: #5a6675;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: 1.5px;
+    }
+
+    /* Animated beating heart */
+    .heart {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        animation: heartbeat 1.2s ease-in-out infinite;
+        filter: drop-shadow(0 0 6px rgba(255, 56, 96, 0.7));
+    }
+
+    .heart-icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        background: linear-gradient(135deg, #ff3860, #ff7eb3);
+        -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>") no-repeat center/contain;
+        mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>") no-repeat center/contain;
+    }
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        15%      { transform: scale(1.25); }
+        30%      { transform: scale(1); }
+        45%      { transform: scale(1.15); }
+    }
+
+    /* The credit link */
+    .footer-link {
+        position: relative;
+        display: inline-block;
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 2px 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .footer-link .link-text {
+        background: linear-gradient(
+            90deg,
+            #00d9ff 0%,
+            #7c3aed 50%,
+            #00d9ff 100%
+        );
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientMove 3s linear infinite;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 0 6px rgba(0, 217, 255, 0.4));
+    }
+
+    @keyframes gradientMove {
+        0%   { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+    }
+
+    /* Underline glow */
+    .footer-link .link-glow {
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, #00d9ff, #7c3aed, #00d9ff);
+        background-size: 200% 100%;
+        border-radius: 2px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: gradientMove 3s linear infinite;
+        box-shadow: 0 0 10px rgba(0, 217, 255, 0.7);
+    }
+
+    .footer-link:hover .link-glow {
+        transform: scaleX(1);
+    }
+
+    .footer-link:hover .link-text {
+        filter: drop-shadow(0 0 12px rgba(0, 217, 255, 0.8));
+    }
+
+    /* ============================================
+       MOBILE
+       ============================================ */
+    @media (max-width: 600px) {
+        .cool-footer {
+            margin: 40px auto 16px;
+            padding: 0 12px;
+        }
+
+        .footer-badge {
+            padding: 10px 16px;
+            gap: 8px;
+            font-size: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .badge-text {
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+        }
+
+        .footer-link {
+            font-size: 0.78rem;
+            letter-spacing: 1.2px;
+        }
+
+        .footer-link .link-glow {
+            transform: scaleX(1); /* Always visible on mobile */
+            opacity: 0.6;
+        }
+
+        .heart {
+            width: 16px;
+            height: 16px;
+        }
+
+        .heart-icon {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    /* Very small phones */
+    @media (max-width: 380px) {
+        .footer-badge {
+            padding: 8px 12px;
+            font-size: 0.7rem;
+        }
+
+        .footer-link {
+            font-size: 0.72rem;
+            letter-spacing: 1px;
+        }
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        .footer-line::after,
+        .badge-dot,
+        .heart,
+        .footer-link .link-text,
+        .footer-link .link-glow {
+            animation: none !important;
+        }
+    }
+</style>

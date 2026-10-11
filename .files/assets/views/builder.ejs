@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<% include partials/head.ejs %>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0e17">
+</head>
+
+<body>
+    <style type="text/css">
+        /* ============================================
+           BUILDER PAGE - Dark Neon Theme
+           ============================================ */
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+                         'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            background-image:
+                radial-gradient(circle at 10% 5%, rgba(124, 58, 237, 0.15), transparent 40%),
+                radial-gradient(circle at 90% 95%, rgba(0, 217, 255, 0.12), transparent 40%);
+            background-attachment: fixed;
+            color: #e6edf3;
+            min-height: 100vh;
+        }
+
+        .ui.container {
+            width: 100% !important;
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 20px 16px 40px !important;
+        }
+
+        .ui.segment {
+            background: rgba(19, 26, 38, 0.75) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 217, 255, 0.15) !important;
+            border-radius: 20px !important;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            padding: 32px 24px !important;
+            margin-top: 8px !important;
+        }
+
+        /* ============================================
+           Page Title
+           ============================================ */
+        h1.ui {
+            text-align: center !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #e6edf3 !important;
+            margin: 0 0 28px !important;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
+        }
+
+        h1.ui::before {
+            content: '⚙';
+            margin-right: 12px;
+            color: #00d9ff;
+            filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.6));
+        }
+
+        /* ============================================
+           Form fields
+           ============================================ */
+        .ui.form .inline.fields {
+            justify-content: center !important;
+            align-items: flex-end !important;
+            gap: 12px !important;
+            flex-wrap: nowrap !important;
+            margin-bottom: 20px !important;
+        }
+
+        .ui.form .field {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Labels */
+        .ui.form label {
+            color: #5a6675 !important;
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px !important;
+            display: block;
+            text-align: left;
+        }
+
+        /* Labeled input (http:// prefix) */
+        .ui.labeled.input {
+            width: 100%;
+            display: flex;
+            align-items: stretch;
+            border-radius: 12px !important;
+            overflow: hidden;
+            border: 1px solid #223047;
+            background: rgba(10, 14, 23, 0.7);
+            transition: all 0.25s ease;
+        }
+
+        .ui.labeled.input:focus-within {
+            border-color: #00d9ff;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+        }
+
+        .ui.labeled.input > .label {
+            background: rgba(0, 217, 255, 0.08) !important;
+            color: #00d9ff !important;
+            border: none !important;
+            border-right: 1px solid #223047 !important;
+            padding: 14px 14px !important;
+            font-family: 'JetBrains Mono', 'Courier New', monospace !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0;
+            text-transform: none !important;
+        }
+
+        .ui.labeled.input > input {
+            background: transparent !important;
+            border: none !important;
+            color: #e6edf3 !important;
+            padding: 14px 16px !important;
+            font-size: 16px !important;
+            font-family: inherit !important;
+            flex: 1;
+            min-height: 48px;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none !important;
+            width: 100%;
+        }
+
+        .ui.labeled.input > input::placeholder {
+            color: #5a6675 !important;
+        }
+
+        /* Plain input (port) */
+        .ui.form input[type="number"],
+        .ui.form input[type="text"]:not(.ui.labeled.input > input) {
+            background: rgba(10, 14, 23, 0.7) !important;
+            border: 1px solid #223047 !important;
+            border-radius: 12px !important;
+            color: #e6edf3 !important;
+            padding: 14px 16px !important;
+            font-size: 16px !important;
+            font-family: inherit !important;
+            min-height: 48px;
+            width: 100%;
+            transition: all 0.25s ease;
+            outline: none !important;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .ui.form input[type="number"]:focus {
+            border-color: #00d9ff !important;
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15) !important;
+            background: rgba(10, 14, 23, 0.95) !important;
+        }
+
+        /* Remove number input spinners */
+        .ui.form input[type="number"]::-webkit-outer-spin-button,
+        .ui.form input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .ui.form input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* ============================================
+           Build button
+           ============================================ */
+        .ui.form .inline.fields .field.eight {
+            width: 100% !important;
+            max-width: 500px;
+        }
+
+        .ui.positive.button {
+            background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #fff !important;
+            font-weight: 700 !important;
+            font-size: 15px !important;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 15px !important;
+            min-height: 50px;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.35) !important;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ui.positive.button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.25),
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .ui.positive.button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0, 217, 255, 0.6) !important;
+        }
+
+        .ui.positive.button:hover::after {
+            left: 100%;
+        }
+
+        .ui.positive.button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .ui.positive.button .icon {
+            margin-right: 8px !important;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5));
+        }
+
+        /* ============================================
+           Download button
+           ============================================ */
+        .ui.blue.button {
+            background: linear-gradient(135deg, #00ff9d 0%, #00b377 100%) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            color: #002218 !important;
+            font-weight: 700 !important;
+            font-size: 15px !important;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 15px !important;
+            min-height: 50px;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 0 25px rgba(0, 255, 157, 0.35) !important;
+            width: 100%;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none !important;
+        }
+
+        .ui.blue.button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0, 255, 157, 0.6) !important;
+            color: #002218 !important;
+        }
+
+        .ui.blue.button .icon {
+            margin: 0 !important;
+        }
+
+        /* Download section animation */
+        #download {
+            animation: downloadIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes downloadIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================
+           Dimmer / Loader (custom)
+           ============================================ */
+        #dimmer.ui.dimmer {
+            background: rgba(10, 14, 23, 0.92) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px !important;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Custom loader — rotating ring */
+        #loadingText.ui.text.loader {
+            color: #e6edf3 !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding-top: 5em !important;
+            position: relative;
+            min-width: 200px;
+        }
+
+        #loadingText.ui.text.loader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 217, 255, 0.15);
+        }
+
+        #loadingText.ui.text.loader::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #00d9ff;
+            border-right-color: #7c3aed;
+            animation: spin 0.9s linear infinite;
+            box-shadow:
+                0 0 20px rgba(0, 217, 255, 0.6),
+                inset 0 0 20px rgba(124, 58, 237, 0.4);
+        }
+
+        @keyframes spin {
+            to { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* ============================================
+           MOBILE — Stack fields vertically
+           ============================================ */
+        @media (max-width: 768px) {
+            .ui.container {
+                padding: 12px 10px 32px !important;
+            }
+
+            .ui.segment {
+                padding: 24px 18px !important;
+                border-radius: 16px !important;
+            }
+
+            h1.ui {
+                font-size: 1.15rem !important;
+                letter-spacing: 2px;
+                margin-bottom: 22px !important;
+            }
+
+            h1.ui::before {
+                margin-right: 8px;
+            }
+
+            .ui.form .inline.fields {
+                flex-wrap: wrap !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 14px !important;
+            }
+
+            .ui.form .inline.fields > .field {
+                width: 100% !important;
+            }
+
+            /* Hide the ":" label on port field for mobile */
+            .ui.form .inline.fields > .two.wide.field > label {
+                display: none !important;
+            }
+
+            .ui.form .inline.fields > .two.wide.field::before {
+                content: 'Port';
+                display: block;
+                color: #5a6675;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                margin-bottom: 6px;
+            }
+
+            /* Add "Server URL" label on mobile */
+            .ui.form .inline.fields > .six.wide.field::before {
+                content: 'Server URL';
+                display: block;
+                color: #5a6675;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                margin-bottom: 6px;
+            }
+
+            .ui.positive.button,
+            .ui.blue.button {
+                min-height: 48px;
+                padding: 13px !important;
+                font-size: 14px !important;
+            }
+
+            .ui.labeled.input > .label {
+                padding: 12px 12px !important;
+                font-size: 0.78rem !important;
+            }
+
+            .ui.labeled.input > input,
+            .ui.form input[type="number"] {
+                padding: 12px 14px !important;
+                min-height: 46px;
+            }
+
+            #loadingText.ui.text.loader {
+                font-size: 0.85rem !important;
+                padding-top: 4.5em !important;
+                letter-spacing: 1.5px;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 400px) {
+            .ui.segment { padding: 20px 14px !important; }
+            h1.ui { font-size: 1rem !important; }
+        }
+
+        /* Landscape mobile — compress */
+        @media (max-width: 768px) and (orientation: landscape) and (max-height: 500px) {
+            .ui.segment { padding: 16px 18px !important; }
+            h1.ui { font-size: 0.95rem !important; margin-bottom: 14px !important; }
+            .ui.form .inline.fields { gap: 8px !important; }
+        }
+
+        /* iOS safe area */
+        @supports (padding: env(safe-area-inset-top)) {
+            .ui.container {
+                padding-left: max(16px, env(safe-area-inset-left)) !important;
+                padding-right: max(16px, env(safe-area-inset-right)) !important;
+            }
+        }
+    </style>
+
+    <div class="ui container">
+        <% include partials/header.ejs %>
+        <div class="ui segment">
+
+            <div id="dimmer" class="ui dimmer">
+                <div class="ui indeterminate text loader" id="loadingText">Submitting</div>
+            </div>
+
+            <h1 class="ui">APK Builder</h1>
+            <div class="ui form" id="form">
+                <div class="inline fields">
+                    <div class="six wide field">
+                        <div class="ui labeled input">
+                            <div class="ui label">
+                                http://
+                            </div>
+                            <input type="text" id="uriInput" placeholder="IP / Public URL"
+                                title="This is the public url of your server (flash.domain.com)">
+                        </div>
+                    </div>
+                    <div class="two wide field">
+                        <label>:</label>
+                        <input type="number" id="portInput" placeholder="PORT" min="2048" max="25565"
+                            title="This is the `control_port` set in the consts" value="<%= myPort %>">
+                    </div>
+
+                </div>
+                <div class="inline fields">
+                    <div class="eight wide field">
+                        <button id="gobuild" class="positive ui fluid button"><i class="wrench icon"></i>Build</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui form" id="download" style="display: none">
+                <div class="inline fields">
+                    <div class="eight wide field">
+                        <a class="blue ui fluid button" download="flash.apk" href="/build.s.apk"><i
+                                class="download icon"></i>Download</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        gtag('event', 'screen_view', {
+            'screen_name': 'apkBuilder',
+            'app_name': 'flash'
+        });
+
+        var loadingTexts = [
+            "Decompiling APK",
+            "Patching Server Information",
+            "Compiling APK",
+            "Signing APK",
+            "Verifying Build",
+            "Finalizing"
+        ];
+
+        var loadingIndex = 0;
+        var isDone = false;
+        var isDoneInterval;
+        $('#gobuild').click((e) => {
+            $('#dimmer').addClass('active');
+            build($('#uriInput').val(), $('#portInput').val());
+            setTimeout(loaderText, 500);
+        });
+
+        function loaderText() {
+            var nextTimeout = Math.floor(Math.random() * 1500) + 700;
+            $('#loadingText').text(loadingTexts[loadingIndex]);
+            loadingIndex++;
+            if (loadingIndex !== loadingTexts.length) setTimeout(loaderText, nextTimeout);
+            else isDoneInterval = setInterval(() => {
+                if (isDone) {
+                    clearInterval(isDoneInterval);
+                    isDone = false;
+                    $('#dimmer').fadeOut(500, () => {
+                        $('#download').removeClass('active');
+                    })
+                    $('#form').fadeOut(500, () => {
+                        $('#download').fadeIn(200);
+                    })
+                }
+            }, 100);
+        }
+
+        function build(URI, PORT) {
+            gtag('event', 'build', {
+                'builduri': URI + ':' + PORT
+            });
+            $.post("/builder?uri=" + URI + "&port=" + PORT, function (data) {
+                if (!data.error) {
+                    isDone = true
+                } else showNotification('#f03434', data.error)
+            });
+        }
+    </script>
+
+    <% include partials/footer.ejs %>
+</body>
+
+</html>
